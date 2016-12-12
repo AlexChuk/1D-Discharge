@@ -5,12 +5,14 @@
 double Ne[NEmax],Ni[Nmax],Mi[Nmax],LJi[Nmax][2],Roi[Nmax],Xi[Nmax],Pgas,Tgas,Ngas,Rogas,Hgas;
 double E,E_N,Nel,Te,Tv;
 double dTgas,dTe,dNel;
-double Rad,Tw,Lam;
+double Len,Tw,Lam;
 double tau,dt,dte;
 double Emax,dE,dEev;
+int v0,vlen;
+double V0,Vlen;
 
 int N,NR,Nt,Nte,Ndots;
-char Spec[Nmax][10],Spec_R[Nmax][10];
+char Spec[Nmax][10],Spec_R[Nmax][10],GeomVect[10];
 double CXi[Nmax][2][8];
 
 void init_read()//считывание начальных данных
@@ -40,8 +42,13 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%lf%s",&Tgas,&Cmt);
 	fscanf(init,"%lf%s",&E_N,&Cmt);
 	fscanf(init,"%lf%s",&Emax,&Cmt);//считывание максимума энергетич шкалы
-	fscanf(init,"%lf%s",&Rad,&Cmt);
+	fscanf(init,"%lf%s",&Len,&Cmt);
 	fscanf(init,"%lf%s",&Tw,&Cmt);
+
+	fscanf(init,"%s%s",&Geom,&Cmt);
+	fscanf(init,"%d%lf%s",&v0,&V0,&Cmt);
+	fscanf(init,"%d%lf%s",&vlen,&Vlen,&Cmt);
+
 
 	dEev = Emax/NEmax;
 	dE = dEev*1.602e-12;//[eV]=1.602e-12[erg]
