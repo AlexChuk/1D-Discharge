@@ -70,19 +70,52 @@ int Trasport_GFcalc(char Geom)
 }
 void Transport_SWEEPsolve(double Ni, int Gf)
 {
+	/*
+	**************************************************************
 
-    //Сетка по длине:
-	/*            left wall                                                               right wall
-                  |                                                                       |
-    Ni[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
-            |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
-    l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
-                  |                                                                       |
-                  |                                                                       |
-    */
+	Transport equation (in Drift-Diffusion approximation ) solution with
+	implicit SWEEP Method
+
+	Drift part is implemented by:
+	- "upwind" scheme
+	- "power law" scheme
+
+	Central differencing scheme (CDS) for diffusion
+
+	Chemistry part considered as explicit (source term)
+
+	**************************************************************
+	*/
+
+	double
+
 
 	if(Gf==0)
         Gf = Transport_GFcalc(char Geom);
+
+
+    //набор энергии от поля и упругие потери в соударениях
+    for(i=0;i<=I+1;i++)
+    {
+        //Diffusion
+        if(i==0)
+            Dl = D[i];
+        else
+            Dl = 0.5*(D[i]+D[i-1]);
+
+        if(i==I+1)
+            Dr = D[i];
+        else
+            Dr = 0.5*(D[i+1]+D[i]);
+
+        //Drift-part
+        Mui[i]
+
+    }
+
+
+
+
 
     for(i=1;i<I+1;i++)
     {
