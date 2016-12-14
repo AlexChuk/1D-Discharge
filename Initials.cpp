@@ -1,8 +1,7 @@
-# include "0D-DischMod.h"
-# include "Gas_calc.h"
+# include "1D_MainFun.h"
 # include "Initials.h"
 
-double Ne[NEmax],Ni[Nmax],Mi[Nmax],LJi[Nmax][2],Roi[Nmax],Xi[Nmax],Pgas,Tgas,Ngas,Rogas,Hgas;
+double Ne[NEmax],Ni[Nmax][I+2],Mi[Nmax],LJi[Nmax][2],Roi[Nmax][I+2],Xi[Nmax],Pgas[I+2],Tgas[I+2],Ngas[I+2],Rogas[I+2],Hgas[I+2];
 double E,E_N,Nel,Te,Tv;
 double dTgas,dTe,dNel;
 double Len,Tw,Lam;

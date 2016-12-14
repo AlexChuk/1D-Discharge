@@ -3,10 +3,14 @@
 # include <string.h>
 # include <stdlib.h>
 
-#ifndef 1D_MAINFUN_H
-#define 1D_MAINFUN_H
+#ifndef MAINFUN_H
+#define MAINFUN_H
 
 # define I 100  //dots per axis
+# define NEmax 1000
+# define Nmax 100
+# define CSmax 100
+# define NRmax 1000
 
 const double
 	pi = 3.141592653589,
@@ -22,7 +26,6 @@ const double
 
 extern int N,Nt,Nte,Nchem,Nedf,Ndots,NR;
 
-extern double Ne[NEmax],Ni[Nmax],Mi[Nmax],LJi[Nmax][2],Roi[Nmax],Pgas,Tgas,Ngas,Hgas,Rogas;
 extern double E,E_N,Nel,Ee,Te,Tv,Vdr,Muel,Jel,Qel,QE;
 extern double dTgas,dTe,dNel;
 extern double Len,Tw,Lam;
@@ -37,5 +40,11 @@ extern char Spec[Nmax][10],Spec_R[Nmax][10],Geom[10];
 
 extern int v0,vlen;
 extern double V0,Vlen;
+
+extern double Fi[I+2];
+extern double Di[I+2],Mui[I+2];
+extern double Ne[NEmax],Ni[Nmax][I+2],Mi[Nmax],LJi[Nmax][2],Roi[Nmax][I+2],
+              Pgas[I+2],Tgas[I+2],Ngas[I+2],Hgas[I+2],Rogas[I+2];
+
 
 #endif

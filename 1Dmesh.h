@@ -1,6 +1,6 @@
-#ifndef MESH_H_INCLUDED
-#define MESH_H_INCLUDED
+#ifndef MESH_H
+#define MESH_H
 
-void 1Dmesh_calc(double);
+void mesh_calc(double);
 
-#endif // MESH_H_INCLUDED
+#endif // MESH_H

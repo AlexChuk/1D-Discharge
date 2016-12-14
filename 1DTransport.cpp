@@ -1,11 +1,11 @@
-# include "1D-MainFun.h"
+# include "1D_MainFun.h"
 # include "1DTransport.h"
 
 double GF_C[I+2],GF_L[I+2],GF_R[I+2];
 double Di[I+2],Mui[I+2];
 int Gf = 0;
 
-void 1DTrasport_coefs_calc();
+void Trasport_coefs_calc()
 {
     int i;
     for(i=0;i<I+2;i++)
@@ -15,7 +15,7 @@ void 1DTrasport_coefs_calc();
         //from EEDF_calc;
     }
 }
-int 1DTrasport_GFcalc(char Geom)
+int Trasport_GFcalc(char Geom)
 {
     //Сетка по длине:
 	/*            left wall                                                               right wall
@@ -68,7 +68,7 @@ int 1DTrasport_GFcalc(char Geom)
         }
     }
 }
-void 1DTransport_SWEEPsolve(double Ni, int Gf)
+void Transport_SWEEPsolve(double Ni, int Gf)
 {
 
     //Сетка по длине:
@@ -82,7 +82,7 @@ void 1DTransport_SWEEPsolve(double Ni, int Gf)
     */
 
 	if(Gf==0)
-        Gf = 1DTransport_GFcalc(char Geom);
+        Gf = Transport_GFcalc(char Geom);
 
     for(i=1;i<I+1;i++)
     {
@@ -91,7 +91,7 @@ void 1DTransport_SWEEPsolve(double Ni, int Gf)
 
 
 }
-void 1DTransport_boundary();
+void Transport_boundary();
 {
 
 }

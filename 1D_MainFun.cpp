@@ -8,7 +8,7 @@ int main(void)
 {
 	init_read();
 
-	1Dmesh_calc(Len);
+	mesh_calc(Len);
 
 	init_data();
 
@@ -16,20 +16,18 @@ int main(void)
 	Nt = int(tau/dt);
 	//Nte = int(dt/dte);
 
-	int dot = 0, Ndots = 100;
+	dot = 0;
 	for(nt=0;nt<=Nt;nt++)
 	{
 		dot += 1;
 
-		1DPoisson_SORsolve(Fi[],1.0);
+		Poisson_SORsolve(Fi,1.0);
 
-		1DTransport_SWEEPsolve(Ni);
+		//Transport_SWEEPsolve(Ni);
 
         if(dot==Ndots)
 			dot = 0;
 	}
-
-	if exist
 
 	return 0;
 }
