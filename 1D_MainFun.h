@@ -2,6 +2,7 @@
 # include <math.h>
 # include <string.h>
 # include <stdlib.h>
+# include <algorithm>
 
 #ifndef MAINFUN_H
 #define MAINFUN_H
