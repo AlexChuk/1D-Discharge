@@ -44,8 +44,8 @@ int Trasport_GFcalc(char Geom)
             dlC = l[i+1]-l[i];
             dlR = lR-lC;
 
-            GF_L[i] = l[i]/(lC*dlC*dlL);
-            GF_R[i] = l[i+1]/(lC*dlC*dlR);
+            GF_L[i] = l[i]/(lC*dlC);
+            GF_R[i] = l[i+1]/(lC*dlC);
             GF_C[i] = -(GF_R[i]+GF_L[i]);
         }
 
@@ -71,10 +71,9 @@ int Trasport_GFcalc(char Geom)
 void Transport_SWEEPsolve(double Ni, int Gf)
 {
 	/*
-	**************************************************************
+    //-----------------------------------------------------------------------------------------------------------------------------
 
-	Transport equation (in Drift-Diffusion approximation ) solution with
-	implicit SWEEP/Shuttle Method
+	Transport equation (in Drift-Diffusion approximation ) solution with implicit SWEEP/Shuttle Method:
 
 	Drift-Diffusion Term (DDT) is implemented using exact solution for steady 1D DDT problem:
 
@@ -95,7 +94,7 @@ void Transport_SWEEPsolve(double Ni, int Gf)
 
     A[i]*N[i] = A[i+1]*N[i+1] + A[i-1]*N[i-1]
 
-    Coefficients:
+    Coefficients (linear geometry):
     A[i+1] = D[i+0.5]*F(|Pe[i+0.5]|)+Max(-Vdr[i+0.5];0)
     A[i-1] = D[i-0.5]*F(|Pe[i-0.5]|)+Max(Vdr[i-0.5];0)
     A[i] = A[i+1]+A[i-1]+(Vdr[i+0.5]-Vdr[i-0.5])
@@ -111,81 +110,89 @@ void Transport_SWEEPsolve(double Ni, int Gf)
 
     Chemistry part considered as explicit (source term)
 
-	**************************************************************
+	//-----------------------------------------------------------------------------------------------------------------------------
 	*/
 
-	double
+	double  D_L,D_R,Vdr_L,Vdr_R,
+            lL,lC,lR,
+            Pe,fPe,
+            A_L,A_R,A_C;
 
+    double  A,B,C,F,
+            al[I+1],bet[I+1];
 
 	if(Gf==0)
         Gf = Transport_GFcalc(char Geom);
 
+    //Boundary_conditions*****************************************
+    Transport_boundary();
 
     //SWEEP-SHUTTLE_CICLE*****************************************
-
-    //Defining_sweep_coefficients*********************************
     for(n=0;n<N;n++)
     {
+        //Defining_sweep_coefficients
         for(i=0;i<=I+1;i++)
         {
             //Diffusion
             if(i==0)
-                D_L = D[i];
+                D_L = D[n][i];
             else
-                D_L = 0.5*(D[i]+D[i-1]);
+                D_L = 0.5*(D[n][i]+D[n][i-1]);
 
             if(i==I+1)
-                D_R = D[i];
+                D_R = D[n][i];
             else
-                D_R = 0.5*(D[i+1]+D[i]);
+                D_R = 0.5*(D[n][i+1]+D[n][i]);
 
-            //Drift-part
-            Mui[i]
+            //Drift
+            //Mui[i] = ?????;
 
             lL = 0.5*(l[i-1]+l[i]);
             lC = 0.5*(l[i]+l[i+1]);
             lR = 0.5*(l[i+1]+l[i+2]);
 
             //DDT_Coefficients:
-            Pe_R = fabs(Vdr[i]*(lR-lC)/D_R);
-            fPe = pow((1.0-0.1*Pe_R),5.0);
-            A_R = D_R*max(0.0,fPe)+max(-Vdr[i],0.0);
+            //right-edge
+            Pe = fabs(Vdr_R*(lR-lC)/D_R);
+            fPe = pow((1.0-0.1*Pe),5.0);
+            A_R = D_R*max(0.0,fPe)+max(-Vdr_R,0.0);
 
-            Pe_R = fabs(Vdr[i-1]*(lC-lL)/D_L);
-            fPe = pow((1.0-0.1*Pe_L),5.0);
-            A_L = D_L*max(0.0,fPe)+max(Vdr[i-1],0.0);
+            //left-edge
+            Pe = fabs(Vdr_L*(lC-lL)/D_L);
+            fPe = pow((1.0-0.1*Pe),5.0);
+            A_L = D_L*max(0.0,fPe)+max(Vdr_L,0.0);
 
             //Accounting for Geometry Factors:
-            AA_R = A_R*GF_R[i];
-            AA_L = A_R*GF_L[i];
-            AA_C = AA_R+AA_L+GF_R[i]*Vdr_R-GF_L[i]*Vdr_L;
+            A_R = A_R*GF_R[i];
+            A_L = A_R*GF_L[i];
+            A_C = A_R+A_L+GF_R[i]*Vdr_R-GF_L[i]*Vdr_L;
 
             //SWEEP Coefficients:
-            A = -AA_L;//i-1(left)
-            B = -AA_R;//i+1(right)
-            C = AA_C+1.0/dt;//i(center)
+            A = -A_L;//i-1(left)
+            B = -A_R;//i+1(right)
+            C = A_C+1.0/dt;//i(center)
+            F = Ni[n][i]*1.0/dt + Rchem[n][i];//RHS-part
 
-            //RHS-part
-            F = Ni[n][i]/dt + Rchem[n][i];
-
-            if(k==0)
+            if(i==0)
             {
-                al[i+1] = -B/C;
-                bet[i+1] = F/C;
+                if(Ni[n][0]==Ni[n][1])
+                {
+                    al[i+1] = 1.0
+                    bet[i+1] = 0.0;
+                }
+                else
+                {
+                    al[i+1] = 1.0
+                    bet[i+1] = 0.0;
+                }
             }
-            else if(i==I+1)
-            {}
-            else
+            else if(i<=I)
             {
                 den = 1.0/(A*al[i]+C);
                 al[i+1] = -B*den;
                 bet[i+1] = (F-A*bet[i])*den;
             }
         }
-
-        //Boundary_conditions************************************************
-        // Ni[n][I+1] = 0.0;
-        Ni[n][I+1] = (F-A*bet[I+1])/(A*al[I+1]+C);//уточнить!!!!
 
         //Reverse_sweep_cycle************************************************
         for(i=I;i>=0;i--)
@@ -200,7 +207,28 @@ void Transport_SWEEPsolve(double Ni, int Gf)
     return 0;
 
 }
-void Transport_boundary();
+void Transport_boundary()
 {
+    int n;
 
+    for(n=0;n<N;n++)
+    {
+        //left_boundary*************************
+        if(Gamma[n][0] == 0.0)
+            Ni[n][0] = Ni[n][1];
+        else
+        {
+            //equation for DDT with kinetic wall flux
+        }
+
+        //right_boundary************************
+        if(Gamma[n][1] == 0.0)
+            Ni[n][I+1] = Ni[n][I];
+        else
+        {
+            //Ni[n][I+1] = (F-A*bet[I+1])/(A*al[I+1]+C);//0.0;//уточнить!!!!
+
+            //equation for DDT with kinetic wall flux
+        }
+    }
 }
