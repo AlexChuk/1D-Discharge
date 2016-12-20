@@ -1,7 +1,7 @@
 # include "1D_MainFun.h"
 # include "1DTransport.h"
 
-double GF_C[I+2],GF_L[I+2],GF_R[I+2];
+double GF_L[I+2],GF_R[I+2];
 double Di[I+2],Mui[I+2];
 int Gf = 0;
 
@@ -27,26 +27,19 @@ int Trasport_GFcalc(char Geom)
                   |                                                                       |
     */
 
-    double lC,lR,lL; //координаты центров €чеек
-    double dlC,dlR,dlL; //разности граней [i]-й €чейки, между центрами €чеек слева ([i-1] и [i]) и справа ([i] и [i+1])
-
+    double lC,dlC; //координаты центров €чеек,разности граней [i]-й €чейки
     int i;
 
     if(!strcmp(Geom,"radial"))
     {
         for(i=1;i<I+1;i++)
         {
-            lL = 0.5*(l[i-1]+l[i]);
             lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
 
-            dlL = lC-lL;
             dlC = l[i+1]-l[i];
-            dlR = lR-lC;
 
             GF_L[i] = l[i]/(lC*dlC);
             GF_R[i] = l[i+1]/(lC*dlC);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
         }
 
     }
@@ -54,17 +47,10 @@ int Trasport_GFcalc(char Geom)
     {
         for(i=1;i<I+1;i++)
         {
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
-
-            dlL = lC-lL;
             dlC = l[i+1]-l[i];
-            dlR = lR-lC;
 
-            GF_L[i] = 1.0/dlC*dlL);
-            GF_R[i] = 1.0/dlC*dlR);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
+            GF_L[i] = 1.0/dlC;
+            GF_R[i] = 1.0/dlC;
         }
     }
 }
@@ -118,7 +104,7 @@ void Transport_SWEEPsolve(double Ni, int Gf)
             Pe,fPe,
             A_L,A_R,A_C;
 
-    double  A,B,C,F,
+    double  A,B,C,F,den,
             al[I+1],bet[I+1];
 
 	if(Gf==0)
@@ -131,21 +117,15 @@ void Transport_SWEEPsolve(double Ni, int Gf)
     for(n=0;n<N;n++)
     {
         //Defining_sweep_coefficients
-        for(i=0;i<=I+1;i++)
+        for(i=1;i<=I;i++)
         {
             //Diffusion
-            if(i==0)
-                D_L = D[n][i];
-            else
-                D_L = 0.5*(D[n][i]+D[n][i-1]);
-
-            if(i==I+1)
-                D_R = D[n][i];
-            else
-                D_R = 0.5*(D[n][i+1]+D[n][i]);
+            D_L = 0.5*(D[n][i]+D[n][i-1]);
+            D_R = 0.5*(D[n][i+1]+D[n][i]);
 
             //Drift
-            //Mui[i] = ?????;
+            Vdr_L=0.5*(Mui[n][i]+Mui[n][i-1])*E[i-1];
+            Vdr_R=0.5*(Mui[n][i+1]+Mui[n][i])*E[i];
 
             lL = 0.5*(l[i-1]+l[i]);
             lC = 0.5*(l[i]+l[i+1]);
@@ -168,36 +148,37 @@ void Transport_SWEEPsolve(double Ni, int Gf)
             A_C = A_R+A_L+GF_R[i]*Vdr_R-GF_L[i]*Vdr_L;
 
             //SWEEP Coefficients:
-            A = -A_L;//i-1(left)
-            B = -A_R;//i+1(right)
-            C = A_C+1.0/dt;//i(center)
+            A = -A_L;//[i-1](left_cell)
+            B = -A_R;//[i+1](right_cell)
+            C = A_C+1.0/dt;//[i](center_cell)
             F = Ni[n][i]*1.0/dt + Rchem[n][i];//RHS-part
 
-            if(i==0)
+            if(i==1)
             {
                 if(Ni[n][0]==Ni[n][1])
                 {
-                    al[i+1] = 1.0
-                    bet[i+1] = 0.0;
+                    al[i-1] = 1.0
+                    bet[i-1] = 0.0;
                 }
                 else
                 {
-                    al[i+1] = 1.0
-                    bet[i+1] = 0.0;
+                    //from boundary function
+                    al[i-1] = 1.0
+                    bet[i-1] = 0.0;
                 }
             }
             else if(i<=I)
             {
-                den = 1.0/(A*al[i]+C);
-                al[i+1] = -B*den;
-                bet[i+1] = (F-A*bet[i])*den;
+                den = 1.0/(A*al[i-1]+C);
+                al[i] = -B*den;
+                bet[i] = (F-A*bet[i-1])*den;
             }
         }
 
         //Reverse_sweep_cycle************************************************
         for(i=I;i>=0;i--)
         {
-            Ni[n][i] = al[i+1]*Ni[n][i+1]+bet[i+1];
+            Ni[n][i] = al[i]*Ni[n][i+1]+bet[i];
             if(Ni[n][i]<1.e-30)
                 Ni[n][i] = 0.0;
         }
