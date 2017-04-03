@@ -3,9 +3,10 @@
 
 double GF_L[I+2],GF_R[I+2];
 double Di[I+2],Mui[I+2];
+double al_bound[N][2];
 int Gf = 0;
 
-void Trasport_coefs_calc()
+void 1DTrasport_coefs_calc()
 {
     int i;
     for(i=0;i<I+2;i++)
@@ -15,15 +16,16 @@ void Trasport_coefs_calc()
         //from EEDF_calc;
     }
 }
-int Trasport_GFcalc(char Geom)
+int 1DTrasport_GFcalc(char Geom)
 {
     //Сетка по длине:
-	/*            left wall                                                               right wall
-                  |                                                                       |
-    Ni[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
+	/*
+                left wall                                                               right wall
+    Ni[i]         |                                                                       |
+    Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
             |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
     l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
-                  |                                                                       |
+    E[i]          |                                                                       |
                   |                                                                       |
     */
 
@@ -54,7 +56,7 @@ int Trasport_GFcalc(char Geom)
         }
     }
 }
-void Transport_SWEEPsolve(double Ni, int Gf)
+void 1DTransport_SWEEPsolve(double Ni, int Gf)
 {
 	/*
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -99,13 +101,14 @@ void Transport_SWEEPsolve(double Ni, int Gf)
 	//-----------------------------------------------------------------------------------------------------------------------------
 	*/
 
-	double  D_L,D_R,Vdr_L,Vdr_R,
-            lL,lC,lR,
+	double  D_L,D_R,Vdr_L,Vdr_R,dL,
             Pe,fPe,
             A_L,A_R,A_C;
 
     double  A,B,C,F,den,
             al[I+1],bet[I+1];
+
+    int i,ii,n;
 
 	if(Gf==0)
         Gf = Transport_GFcalc(char Geom);
@@ -120,25 +123,27 @@ void Transport_SWEEPsolve(double Ni, int Gf)
         for(i=1;i<=I;i++)
         {
             //Diffusion
-            D_L = 0.5*(D[n][i]+D[n][i-1]);
+            D_L = D_R;
+            if(i==1)
+                D_L = 0.5*(D[n][i]+D[n][i-1]);
             D_R = 0.5*(D[n][i+1]+D[n][i]);
 
             //Drift
-            Vdr_L=0.5*(Mui[n][i]+Mui[n][i-1])*E[i-1];
-            Vdr_R=0.5*(Mui[n][i+1]+Mui[n][i])*E[i];
-
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
+            Vdr_L = Vdr_R;
+            if(i==1)
+                Vdr_L = 0.5*(Mui[n][i]+Mui[n][i-1])*E[i-1];
+            Vdr_R = 0.5*(Mui[n][i+1]+Mui[n][i])*E[i];
 
             //DDT_Coefficients:
             //right-edge
-            Pe = fabs(Vdr_R*(lR-lC)/D_R);
+            dL = 0.5*(l[i+2]-l[i]);
+            Pe = fabs(Vdr_R*dL/D_R);
             fPe = pow((1.0-0.1*Pe),5.0);
             A_R = D_R*max(0.0,fPe)+max(-Vdr_R,0.0);
 
             //left-edge
-            Pe = fabs(Vdr_L*(lC-lL)/D_L);
+            dL = 0.5*(l[i+1]-l[i-1]);
+            Pe = fabs(Vdr_L*dL/D_L);
             fPe = pow((1.0-0.1*Pe),5.0);
             A_L = D_L*max(0.0,fPe)+max(Vdr_L,0.0);
 
@@ -153,26 +158,22 @@ void Transport_SWEEPsolve(double Ni, int Gf)
             C = A_C+1.0/dt;//[i](center_cell)
             F = Ni[n][i]*1.0/dt + Rchem[n][i];//RHS-part
 
-            if(i==1)
+            if(i==1)//see Transport_boundary();
             {
-                if(Ni[n][0]==Ni[n][1])
-                {
-                    al[i-1] = 1.0
-                    bet[i-1] = 0.0;
-                }
-                else
-                {
-                    //from boundary function
-                    al[i-1] = 1.0
-                    bet[i-1] = 0.0;
-                }
+                al[i-1] = al_bound[n][0];
+                bet[i-1] = 0.0;
             }
-            else if(i<=I)
+
+            den = 1.0/(A*al[i-1]+C);
+            al[i] = -B*den;
+            bet[i] = (F-A*bet[i-1])*den;
+
+            if(i==I)//see Transport_boundary();]
             {
-                den = 1.0/(A*al[i-1]+C);
-                al[i] = -B*den;
-                bet[i] = (F-A*bet[i-1])*den;
+                al[i] = al_bound[n][1];
+                bet[i] = 0.0;
             }
+
         }
 
         //Reverse_sweep_cycle************************************************
@@ -184,32 +185,58 @@ void Transport_SWEEPsolve(double Ni, int Gf)
         }
 
     }
-
-    return 0;
-
 }
-void Transport_boundary()
+void 1DTransport_boundary()
 {
     int n;
+    double Pe,D,Vd,Vt;
 
     for(n=0;n<N;n++)
     {
-        //left_boundary*************************
-        if(Gamma[n][0] == 0.0)
-            Ni[n][0] = Ni[n][1];
-        else
+        //left_boundary*************************************************
+        if(Gamma[n][0] == 0.0)//Ni[n][0] = Ni[n][1];
+            al_bound[n][0] = 1.0;
+        else//equation for DDT with kinetic wall flux
         {
-            //equation for DDT with kinetic wall flux
+            D = 0.5*(D[n][1]+D[n][0]);
+            Vd = 0.5*(Mui[n][1]+Mui[n][0])*E[0];
+
+            Pe = Vd*0.5*(l[2]-l[0])/D;
+            Vt = sqrt(8*kb*Temp[0]/(pi*Mi[n]));
+
+            al_bound[n][0] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
         }
 
-        //right_boundary************************
-        if(Gamma[n][1] == 0.0)
-            Ni[n][I+1] = Ni[n][I];
-        else
+        //right_boundary************************************************
+        if(Gamma[n][1] == 0.0)//Ni[n][I+1] = Ni[n][I];
+            al_bound[n][1] = 1.0;
+        else//equation for DDT with kinetic wall flux
         {
-            //Ni[n][I+1] = (F-A*bet[I+1])/(A*al[I+1]+C);//0.0;//уточнить!!!!
+            D = 0.5*(D[n][I+1]+D[n][I]);
+            Vd = 0.5*(Mui[n][I]+Mui[n][I+1])*E[I];
 
-            //equation for DDT with kinetic wall flux
+            Pe = Vd*0.5*(l[I+2]-l[I])/D;
+            Vt = sqrt(8*kb*Temp[I+1]/(pi*Mi[n]));
+
+            al_bound[n][1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
         }
     }
+}
+void 1DHeatTransport_SWEEPsolve(double Ni, int Gf)
+{
+    //Сетка по длине:
+	/*
+                left wall                                                               right wall
+    Ni[i]         |                                                                       |
+    Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
+            |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
+    l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
+    E[i]          |                                                                       |
+                  |                                                                       |
+    */
+
+}
+void 1DHeatTransport_boundary()
+{
+
 }

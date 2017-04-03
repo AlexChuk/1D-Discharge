@@ -8,7 +8,7 @@ int main(void)
 {
 	init_read();
 
-	mesh_calc(Len);
+	1Dmesh_calc(Len);
 
 	init_data();
 
@@ -21,9 +21,9 @@ int main(void)
 	{
 		dot += 1;
 
-		Poisson_SORsolve(Fi,1.0);
+		Poisson_SORsolve(Fi);
 
-		//Transport_SWEEPsolve(Ni);
+		Transport_SWEEPsolve(Ni);
 
         if(dot==Ndots)
 			dot = 0;

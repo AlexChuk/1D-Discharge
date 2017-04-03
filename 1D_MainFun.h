@@ -24,10 +24,11 @@ const double
 	kb = 1.38e-16,
 	eV = 11605,//1 эВ в кельвинах К
 	p0 = 1333.22; // коэф-т перевода Торр --> СГС [эрг/см^3]
+	exact = 1.0e-5;//точность счета
 
 extern int N,Nt,Nte,Nchem,Nedf,Ndots,NR;
 
-extern double E,E_N,Nel,Ee,Te,Tv,Vdr,Muel,Jel,Qel,QE;
+extern double E,E_N,Nel,Ee,Te,Tv,Muel,Jel,Qel,QE;
 extern double dTgas,dTe,dNel;
 extern double Len,Tw,Lam;
 extern double tau,dt,dte;
