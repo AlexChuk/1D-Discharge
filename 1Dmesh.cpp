@@ -1,9 +1,9 @@
 # include "1D_MainFun.h"
 # include "1Dmesh.h"
 
-double l[I+3];
+double l[LEN+3];
 
-void 1Dmesh_calc(double Len)
+void mesh_calc(double Len)
 {
     //Сетка по длине:
 	/*            left wall                                                               right wall
@@ -19,8 +19,8 @@ void 1Dmesh_calc(double Len)
 	int i;
 	double dl;
 
-	dl = Len/I;
-	for(i=0;i<I+3;i++)
+	dl = Len/LEN;
+	for(i=0;i<LEN+3;i++)
         l[i] = i*dl;
 
 }

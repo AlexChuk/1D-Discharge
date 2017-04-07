@@ -1,12 +1,11 @@
 # include "1D_MainFun.h"
 # include "1DPoisson.h"
 
-double Fi[I+2]; //potential
-double GF_C[I+2],GF_L[I+2],GF_R[I+2];
+double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
 int Gf = 0;
 double w = 1.5;
 
-int 1DPoisson_GFcalc(char Geom)
+int Poisson_GFcalc(char Geom)
 {
     //Сетка по длине:
 	/*           left wall                                                               right wall
@@ -59,7 +58,7 @@ int 1DPoisson_GFcalc(char Geom)
 
     return Gf = 1;
 }
-void 1DPoisson_SORsolve(double Fi[])
+void Poisson_SORsolve(double *Fi)
 {
 	/*
 	**************************************************************
@@ -73,22 +72,23 @@ void 1DPoisson_SORsolve(double Fi[])
 	**************************************************************
 	*/
 
-	int i;
+    /*
+	!!!!!!!!!Необходимые доработки:
+        - ГУ в цикле
+        - улучшить алгоритм сходимости (не гонять весь диапазон по координате)
+        - определить алгоритм выбора константы w
+	*/
+
+    int i;
 	double Res,Ch,RHS;
 
 	if(Gf==0)
-        Gf = 1DPoisson_GFcalc(char Geom);
+        Gf = Poisson_GFcalc(char Geom);
 
-    1DPoisson_boundary(v0,V0,vlen,Vlen);
+    Poisson_boundary(v0,V0,vlen,Vlen);
 
     int cnt = 0,int Conv,conv[I+2];
 
-	/*
-	Необходимые доработки:
-        - ГУ в цикле
-        - улучшить алгоритм сходимости (не гонять весь диапазон на координате)
-        - определить алгоритм выбора константы w
-	*/
 
 	do
 	{
@@ -118,7 +118,7 @@ void 1DPoisson_SORsolve(double Fi[])
 
 	}while(Conv<I);
 }
-void 1DPoisson_boundary(int v0,double V0,int vlen,double Vlen)
+void Poisson_boundary(double *Fi,int v0,double V0,int vlen,double Vlen)
 {
     //Potential at the left boundary
     if(v0==0)//fi=0 at point l[0.5]
@@ -128,7 +128,7 @@ void 1DPoisson_boundary(int v0,double V0,int vlen,double Vlen)
 
     //Potential at the right boundary
     if(vlen==0)//fi=0 at point l[I+1.5]
-        Fi[I+1] = Vlen;
+        Fi[LEN+1] = Vlen;
     if(vlen==1)//dfi/dl=0 at point l[I+1]
-        Fi[I+1] = Fi[I];
+        Fi[LEN+1] = Fi[LEN];
 }

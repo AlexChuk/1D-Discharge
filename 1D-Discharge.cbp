@@ -40,8 +40,14 @@
 		<Unit filename="1D_MainFun.h" />
 		<Unit filename="1Dmesh.cpp" />
 		<Unit filename="1Dmesh.h" />
+		<Unit filename="Chemistry_calc.cpp" />
+		<Unit filename="Chemistry_calc.h" />
 		<Unit filename="Comps_N2.txt" />
+		<Unit filename="EEDF_calc.cpp" />
+		<Unit filename="EEDF_calc.h" />
 		<Unit filename="GasPropDB.txt" />
+		<Unit filename="Gas_calc.cpp" />
+		<Unit filename="Gas_calc.h" />
 		<Unit filename="Initials.cpp" />
 		<Unit filename="Initials.h" />
 		<Unit filename="Read_mesh.cpp" />

@@ -1,9 +1,11 @@
 # include "1D_MainFun.h"
 # include "Initials.h"
 
-double Ne[NEmax],Ni[Nmax][I+2],Mi[Nmax],LJi[Nmax][2],Roi[Nmax][I+2],Xi[Nmax],Pgas[I+2],Tgas[I+2],Ngas[I+2],Rogas[I+2],Hgas[I+2];
-double E,E_N,Nel,Te,Tv;
-double dTgas,dTe,dNel;
+double Ne[I+2][NEmax],Ni[Nmax][I+2],Mi[Nmax],LJi[Nmax][2],Roi[Nmax][I+2],Xi[Nmax][I+2],Pgas,Tgas[I+2],Ngas[I+2],Rogas[I+2],Hgas[I+2];
+double Nel[I+2],Te[I+2],Tv[I+2];
+double Gamma[Nmax][2];
+double E[I+1],E_N[I+1];
+double Tin,dTgas,dTe,dNel;
 double Len,Tw,Lam;
 double tau,dt,dte;
 double Emax,dE,dEev;
@@ -38,7 +40,7 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%lf%s",&dte,&Cmt);
 	fscanf(init,"%d%s",&Ndots,&Cmt);
 	fscanf(init,"%lf%s",&Pgas,&Cmt);
-	fscanf(init,"%lf%s",&Tgas,&Cmt);
+	fscanf(init,"%lf%s",&Tin,&Cmt);
 	fscanf(init,"%lf%s",&E_N,&Cmt);
 	fscanf(init,"%lf%s",&Emax,&Cmt);//считывание максимума энергетич шкалы
 	fscanf(init,"%lf%s",&Len,&Cmt);
@@ -48,15 +50,14 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%d%lf%s",&v0,&V0,&Cmt);
 	fscanf(init,"%d%lf%s",&vlen,&Vlen,&Cmt);
 
-
 	dEev = Emax/NEmax;
 	dE = dEev*1.602e-12;//[eV]=1.602e-12[erg]
 
 	int n,x,i,N1;
 	fscanf(init,"%s",&Cmt);
-	fscanf(init,"%d%s%lf",&N1,&Spec[0],&Xi[0]);//электроны
-	for(n=1;n<N;n++)
-        fscanf(init,"%d%s%lf",&N1,&Spec[n],&Xi[n]);
+	//fscanf(init,"%d%s%lf",&N1,&Spec[0],&Xi[0],&Gamma[0][0]);//электроны
+	for(n=0;n<N;n++)
+        fscanf(init,"%d%s%lf%lf%lf",&N1,&Spec[n],&Xi[n],&Gamma[n][0],&Gamma[n][1]);
 
   	//Считывание_выбранных_компонент_для_вывода_скоростей_процессов*******************************
 	fscanf(init,"%s",&Cmt);
@@ -85,41 +86,57 @@ void init_read()//считывание начальных данных
 }
 void init_data()//задание начальных условий
 {
-	int n,k;
+	int i,n,k;
 
 	gas_HCpSi_calc(Tgas);
 
 	//Газовые компоненты**********************************************
-	Pgas = Pgas*p0; //Torr
-	Ni[0] = Xi[0];
-	Ngas = 0.0;
-	Hgas = 0.0;
-	Rogas = 0.0;
-	for(n=1;n<N;n++)
-	{
-		Ni[n] = Xi[n]*Pgas/(kb*Tgas);
-		Roi[n] = Ni[n]*Mi[n];
+	for(i=0;i<=I+1;i++)
+    {
+        Pgas = Pgas*p0; //Torr
+        Tgas[i] = Tin;
+        Ni[0][i] = Xi[0][i];
+        Ngas[i] = 0.0;
+        Hgas[i] = 0.0;
+        Rogas[i] = 0.0;
+        for(n=1;n<N;n++)
+        {
+            Ni[n][i] = Xi[n]*Pgas[i]/(kb*Tgas[i]);
+            Roi[n][i] = Ni[n][i]*Mi[n];
 
-		Ngas += Ni[n];
-		Rogas += Roi[n];
-		Hgas += HCpSi[0][n]*Roi[n];//[эрг/cm^3]
-	}
+            Ngas[i] += Ni[n][i];
+            Rogas[i] += Roi[n][i];
+            Hgas[i] += HCpSi[0][n]*Roi[n][i];//[эрг/cm^3]
+        }
+    }
 	//****************************************************************
 
-	//Электрическое поле**********************************************
-	E = E_N*Ngas*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
-	E = E/E0;//E[В/см] = E0*E[abs]
+	//Потенциал электрического поля***********************************
+	for(i=0;i<=I+1;i++)
+        Fi[i] = 0.0;
+
+	/*
+	for(i=0;i<=I;i++)
+    {
+        E[i] = E_N*Ngas[i]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+        E[i] = E[i]/E0;//E[В/см] = E0*E[abs]
+    }
+    */
 	//****************************************************************
 
 	//Начальная EEDF**************************************************
-	Te = 2.0;
-	Nel = Xi[0];//1e+12;
-	for(k=0;k<=NEmax-1;k++)
-	{
-		Ne[k] = 2*Nel*pow((k+0.5)*dEev/(Te*Te*Te*pi),0.5)*exp(-(k+0.5)*dEev/Te);//Maxwell
-		if(Ne[k]<1e-30)
-			Ne[k] = 0.0;
-	}
+    for(i=0;i<=I+1;i++)
+    {
+        Te[i] = 2.0;
+        Nel[i] = Xi[0];
+        for(k=0;k<=NEmax-1;k++)
+        {
+            Ne[i][k] = 2*Nel*pow((k+0.5)*dEev/(Te*Te*Te*pi),0.5)*exp(-(k+0.5)*dEev/Te);//Maxwell
+            if(Ne[i][k]<1e-30)
+                Ne[i][k] = 0.0;
+        }
+
+    }
 	//****************************************************************
 
 	//Writing_data****************************************************
