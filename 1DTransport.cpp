@@ -6,7 +6,7 @@ double Di[I+2],Mui[I+2];
 double al_bound[N][2];
 int Gf = 0;
 
-void 1DTrasport_coefs_calc()
+void Trasport_coefs_calc()
 {
     int i;
     for(i=0;i<I+2;i++)
@@ -16,7 +16,7 @@ void 1DTrasport_coefs_calc()
         //from EEDF_calc;
     }
 }
-int 1DTrasport_GFcalc(char Geom)
+int Trasport_GFcalc(char Geom)
 {
     //Сетка по длине:
 	/*
@@ -56,7 +56,7 @@ int 1DTrasport_GFcalc(char Geom)
         }
     }
 }
-void 1DTransport_SWEEPsolve(int n,double Ni,int Gf)
+void Transport_SWEEPsolve(int n,double Ni,int Gf)
 {
 	/*
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ void 1DTransport_SWEEPsolve(int n,double Ni,int Gf)
 
     return 0;
 }
-void 1DTransport_boundary(int n)
+void Transport_boundary(int n)
 {
     double Pe,D,Vd,Vt;
 
@@ -218,7 +218,7 @@ void 1DTransport_boundary(int n)
     }
 
 }
-void 1DHeatTransport_SWEEPsolve(double Ni, int Gf)
+void HeatTransport_SWEEPsolve(double Ni, int Gf)
 {
     //Сетка по длине:
 	/*
@@ -237,7 +237,7 @@ void 1DHeatTransport_SWEEPsolve(double Ni, int Gf)
 
 
 }
-void 1DHeatTransport_boundary()
+void HeatTransport_boundary()
 {
 
 }

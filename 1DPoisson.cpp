@@ -1,63 +1,8 @@
 # include "1D_MainFun.h"
 # include "1DPoisson.h"
 
-double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
-int Gf = 0;
 double w = 1.5;
 
-int Poisson_GFcalc(char Geom)
-{
-    //—етка по длине:
-	/*           left wall                                                               right wall
-    Ni[i]         |                                                                       |
-    Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
-            |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
-    l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
-    E[i]          |                                                                       |
-                  |                                                                       |
-    */
-
-    double lC,lR,lL; //координаты центров €чеек
-    double dlC,dlR,dlL; //разности граней [i]-й €чейки, между центрами €чеек слева ([i-1] и [i]) и справа ([i] и [i+1])
-
-    if(!strcmp(Geom,"radial"))
-    {
-        for(i=1;i<I+1;i++)
-        {
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
-
-            dlL = lC-lL;
-            dlC = l[i+1]-l[i];
-            dlR = lR-lC;
-
-            GF_L[i] = l[i]/(lC*dlC*dlL);
-            GF_R[i] = l[i+1]/(lC*dlC*dlR);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
-        }
-
-    }
-    else if(!strcmp(Geom,"axis"))
-    {
-        for(i=1;i<I+1;i++)
-        {
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
-
-            dlL = lC-lL;
-            dlC = l[i+1]-l[i];
-            dlR = lR-lC;
-
-            GF_L[i] = 1.0/dlC*dlL);
-            GF_R[i] = 1.0/dlC*dlR);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
-        }
-    }
-
-    return Gf = 1;
-}
 void Poisson_SORsolve(double *Fi)
 {
 	/*
@@ -82,8 +27,8 @@ void Poisson_SORsolve(double *Fi)
     int i;
 	double Res,Ch,RHS;
 
-	if(Gf==0)
-        Gf = Poisson_GFcalc(char Geom);
+	/*if(Gf==0)
+        Gf = Poisson_GFcalc(char Geom);*/
 
     Poisson_boundary(v0,V0,vlen,Vlen);
 
@@ -93,7 +38,7 @@ void Poisson_SORsolve(double *Fi)
 	do
 	{
         Conv = 0;
-        for(i=1;i<I+1;i++)
+        for(i=1;i<LEN+1;i++)
         {
             Ch = -Ni[0][i];//electrons
             for(n=1;n<Nneg;n++)//negative ions
@@ -116,7 +61,7 @@ void Poisson_SORsolve(double *Fi)
 
         cnt ++;
 
-	}while(Conv<I);
+	}while(Conv<LEN);
 }
 void Poisson_boundary(double *Fi,int v0,double V0,int vlen,double Vlen)
 {

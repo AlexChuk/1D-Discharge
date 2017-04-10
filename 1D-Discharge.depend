@@ -1,14 +1,15 @@
 # depslib dependency file v1.0
-1491588916 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
+1491840609 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
 	"1D_MainFun.h"
 
-1491588243 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.h
+1491840421 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.h
 	<stdio.h>
 	<math.h>
 	<string.h>
 	<stdlib.h>
 	<algorithm>
 	"Initials.h"
+	"1Dmesh.h"
 	"Chemistry_calc.h"
 	"EEDF_calc.h"
 	"Gas_calc.h"
@@ -21,13 +22,13 @@
 
 1491589293 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\gas_calc.h
 
-1491579252 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dmesh.cpp
+1491840698 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dmesh.cpp
 	"1D_MainFun.h"
 	"1Dmesh.h"
 
-1491574708 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dmesh.h
+1491840554 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dmesh.h
 
-1491589353 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
+1491589415 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
 	"1D_MainFun.h"
 	"Gas_calc.h"
 	"Chemistry_calc.h"
@@ -35,4 +36,8 @@
 1491589125 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\eedf_calc.cpp
 	"1D_MainFun.h"
 	"EEDF_calc.h"
+
+1490705708 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dpoisson.h
+
+1491839571 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dtransport.h
 

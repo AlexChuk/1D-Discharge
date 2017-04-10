@@ -5,7 +5,7 @@
 # include <algorithm>
 
 # include "Initials.h"
-//# include "1Dmesh.h"
+# include "1Dmesh.h"
 //# include "1DPoisson.h"
 //# include "1DTransport.h"
 # include "Chemistry_calc.h"
@@ -41,6 +41,8 @@ extern int NR,Ndots;//N,Nt,Nte,Nchem,Nedf,Ndots,
 extern char Spec[Nmax][10],Spec_R[Nmax][10],Geom[10];
 extern double Mi[Nmax],HCpSi[3][Nmax],CXi[Nmax][2][8];
 extern double Emax,dE,dEev;
+extern char Geom[10];
+extern double Len;
 
 
 //extern double tau,dt;//dte;

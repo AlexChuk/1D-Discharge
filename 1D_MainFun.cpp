@@ -17,8 +17,10 @@ int main(void)
 
     init_read();
 	init_gasDBparser();
-
 	init_data();
+
+	mesh_calc(Len);
+	mesh_GFcalc(Geom);
 
     Nedf = EEDF_read_CS(N);
 	Nchem = chem_make_react(Nedf);
