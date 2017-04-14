@@ -40,33 +40,35 @@ void gas_HCpSi_calc(double Tgas,int N)//нахождение внутренней энергии,энтальпии 
 		HCpSi[2][n] = Si;//[эрг/г*К]
 	}
 }
-void gas_TP_calc(double *Ni,int N,double *Pin,double *Tin,double *Hin)//расчёт температуры газа((H,P)-const)
+void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double *Ngas,double *Rogas,double *Hgas,double *Nel,double *dNel,double *Tv)//расчёт температуры газа((H,P)-const)
 {
 	int n;
-	double Roi1[N],Xi[N];
-	double Nin,Nout,Pout,Tout,Roin,Roout,Hout;
+	double Xi[N],Nin,Roin,Tin,Pin,Hin;
+	double Nout,Pout,Tout,Roout,Hout;
+    double Hi,Cpi;
+	double ftn,Ftn,Tnn,Tn,dT,Nn;
 
-	dTgas = Tin;
+	dTgas = Tgas;
 	dNel = Nel;
 
-	Nin = 0;
+	//Присвоение значений из адресов переменных
+	Tin = *Tgas;
+	Pin = *Pgas;
+	Hin = *Hgas;
+	Nin = 0.0;
 	Roin = 0.0;
-	for(n=1;n<N;n++)
+	for(n=0;n<N;n++)
 	{
-		Nin += Ni[n];
-		Roi1[n] = Ni[n]*Mi[n];
-		Roin += Roi1[n];
+		Nin += *Ni[n*LEN];
+		Roin += *Ni[n*LEN]*Mi[n];
 	}
 
-    for(n=1;n<N;n++)
-        Xi[n] = Ni[n]/Nin;
+    for(n=0;n<N;n++)
+        Xi[n] = *Ni[n*LEN]/Nin;
 
     //Расчёт температуры_методом Ньютона
-	double Hi,Cpi;
-	double ftn,Ftn,Tnn,Tn,dT,Nn;
 	Tn = Tin;//300;//Temp0;//Tin;//
 	Nn = Nin;
-
 	Tnn = Tin;
 	do
 	{
@@ -79,14 +81,13 @@ void gas_TP_calc(double *Ni,int N,double *Pin,double *Tin,double *Hin)//расчёт т
 		Ftn = 0;
 		ftn = 0;
 		gas_HCpSi_calc(Tn);
-		for(n=4;n<N;n++)
+		for(n=Npos+Nneg;n<N;n++)
 		{
 			Hi = HCpSi[0][n];//[эрг/г]
 			Cpi = HCpSi[1][n];//[эрг/г*К]
 
 			Ftn += Xi[n]*Nn*Mi[n]*Hi;//Roi1[n]*Hi;//Xi[n]*Hi;//
 			ftn += Xi[n]*Nn*Mi[n]*Cpi;//Roi1[n]*Cpi;//Xi[n]*Cpi;//
-
 		}
 
 		Ftn = Ftn - Hin;
@@ -95,23 +96,18 @@ void gas_TP_calc(double *Ni,int N,double *Pin,double *Tin,double *Hin)//расчёт т
 
 		dT = fabs(Tnn-Tn);
 
-	}while(dT>1.0e-2);
-	Tout = Tnn;//Tin;///Tin;///Tnn;//////300;
-
-    dTgas = fabs(dTgas-Tout);
+	}while(dT>0.01);
+	Tout = Tnn;//Tin//300;
 
 	//Isobaric process**************************************
 	Pout = Pin;
+
+	//Return to using variables:
 	Nout = Pout/(kb*Tout);
+
 	Roout = 0.0;
-	for(n=1;n<N;n++)
-	{
-		Ni[n] = Nout*Ni[n]/Nin;
-		Roout += Ni[n]*Mi[n];
-	}
-	Ni[0] = Nout*Ni[0]/Nin;//концентрация электронов
-    Nel = Ni[0];
-    dNel = fabs(dNel-Nel);
+	for(n=0;n<N;n++)
+		Roout += Nout*Xi[n]*Mi[n];
 
 	gas_HCpSi_calc(Tout);
 	Hout = 0;
@@ -119,19 +115,26 @@ void gas_TP_calc(double *Ni,int N,double *Pin,double *Tin,double *Hin)//расчёт т
 		Hout += Ni[n]*Mi[n]*HCpSi[0][n];
 
 	//Return to using variables:
-	Pgas = Pout;
-	Tgas = Tout;
-	Ngas = Nout;
-	Rogas = Roout;
-	Hgas = Hout;
+	*Pgas = Pout;
+	*Tgas = Tout;
+	*Ngas = Nout;
+	*Rogas = Roout;
+	*Hgas = Hout;
+    *dTgas = fabs(*dTgas-Tout);
+
+	for(n=0;n<N;n++)
+        Ni[n*LEN] = Nout*Xi[n];
+
+    *Nel = Nout*Xi[0];//концентрация электронов
+    *dNel = fabs(*dNel-*Nel);
 
     //Tv-calculation
-    for(n=0;n<Nmax;n++)
+    for(n=0;n<N;n++)
     {
         if(!strcmp(Spec[n],"N2(0)"))
             break;
     }
-    Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log(Ni[n]/Ni[n+1]);
+    *Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log(Ni[n*LEN]/Ni[(n+1)*LEN]);
 
 	//************************************************************
 }
@@ -170,4 +173,3 @@ void gas_print(double *Ni,int N,double *Nel,double *Tgas,double Pgas,double *Hga
 
 	fclose(log);
 }
-

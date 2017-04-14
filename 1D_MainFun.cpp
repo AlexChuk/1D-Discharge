@@ -4,10 +4,10 @@
 
 int main(void)
 {
-    extern double   Ni[Nmax][LEN+2],Roi[Nmax][LEN+2],Xi[Nmax][LEN+2],
-                    Pgas,Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
+    extern double   Ni[Nmax][LEN+2],Pgas,Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
                     Ne[LEN+2][NEmax],Nel[LEN+2],Te[LEN+2],Tv[LEN+2],
-                    E[LEN+1],E_N[LEN+1];
+                    E[LEN+1],E_N[LEN+1], //Roi[Nmax][LEN+2],Xi[Nmax][LEN+2],
+                    dTgas[LEN+2],dNel[LEN+2];
 
     extern double tau,dt,tic;//dte;
     extern int N;
@@ -47,9 +47,9 @@ int main(void)
                 EEDF_const_calc(N,&Ne[i][0],&Kel[i][0],Nel[i]);
             }
 
-            /*if((dTgas[i]>10.0) || (nt==0))
+            if((dTgas[i]>10.0) || (nt==0))
                 chem_const(N,&Kch[i][0],&Kel[i][0],Te[i],Tgas[i],tic);
-            chem_runge_kutta4(&Ni[0][i],N,dt,tic);*/
+            chem_runge_kutta4(&Ni[0][i],N,dt,tic);
         }
 
 		/*
@@ -57,10 +57,10 @@ int main(void)
             1DTransport_SWEEPsolve(n,Ni);
 
         1DHeatTransport_SWEEPsolve(Ni);
+        */
 
 		for(i=1;i<=LEN;i++)
-            gas_TP_calc(&Ni[n][i],Tgas,Pgas,Hgas)
-        */
+            gas_TP_calc(&Ni[0][i],N,&Tgas[i],&dTgas[i],&Pgas[i],&Ngas[i],&Rogas[i],&Hgas[i],&Nel[i],&dNel[i],&Tv)
 
         if(dot==Ndots)
 			dot = 0;
