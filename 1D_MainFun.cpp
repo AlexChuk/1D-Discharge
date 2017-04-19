@@ -1,19 +1,18 @@
 # include "1D_MainFun.h"
 
-//void GasData_print(int);
-
 int main(void)
 {
-    extern double   Ni[Nmax][LEN+2],Pgas,Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
+    extern double   Ni[Nmax][LEN+2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
                     Ne[LEN+2][NEmax],Nel[LEN+2],Te[LEN+2],Tv[LEN+2],
-                    E[LEN+1],E_N[LEN+1], //Roi[Nmax][LEN+2],Xi[Nmax][LEN+2],
+                    E[LEN+1],E_N[LEN+1],
                     dTgas[LEN+2],dNel[LEN+2];
 
-    extern double tau,dt,tic;//dte;
+    extern double tau,dt;//dte;
     extern int N;
 
     int Nedf,Nchem;
-    int nt,dot,Nt;
+    int i,nt,dot,Nt;
+    double tic;
 
     init_read();
 	init_gasDBparser();
@@ -22,9 +21,11 @@ int main(void)
 	mesh_calc(Len);
 	mesh_GFcalc(Geom);
 
+	gas_print(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],0.0);
+
     Nedf = EEDF_read_CS(N);
 	Nchem = chem_make_react(Nedf);
-	chem_read_react(Nchem);
+	chem_read_react(Nchem,N);
 
     double Kel[LEN][Nedf],Kch[LEN][Nchem];
 
@@ -32,24 +33,25 @@ int main(void)
 	//Nte = int(dt/dte);
 
 	dot = 0;
-	for(nt=0;nt<=Nt;nt++)
+	for(nt=0;nt<2;nt++)//Nt
 	{
 		tic += dt;
 		dot += 1;
 
 		//1DPoisson_SORsolve(Fi,&Ni[0][0]);
 
-        for(int i=1;i<=LEN;i++)
+        //if((dot==Ndots) || (nt==0))
         {
-            if((dot==Ndots) || (nt==0))
+            for(i=1;i<=LEN;i++)
             {
-                EEDF_calc(&Ne[i][0],&Ni[0][i],N,Te,E[i],Tgas[i],Nel[i],tic,dot);
-                EEDF_const_calc(N,&Ne[i][0],&Kel[i][0],Nel[i]);
+                EEDF_calc(&Ne[i][0],&Ni[0][i],N,&Te[i],E[i],Tgas[i],Nel[i],tic,dot);
+                //EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i]);?????????????????????????????????
+
+                /*if((dTgas[i]>10.0) || (nt==0))
+                    chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
+                chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic);*/
             }
 
-            if((dTgas[i]>10.0) || (nt==0))
-                chem_const(N,&Kch[i][0],&Kel[i][0],Te[i],Tgas[i],tic);
-            chem_runge_kutta4(&Ni[0][i],N,dt,tic);
         }
 
 		/*
@@ -58,17 +60,19 @@ int main(void)
 
         1DHeatTransport_SWEEPsolve(Ni);
         */
+        /*
+        for(i=0;i<=LEN+1;i++)
+            gas_TP_calc(&Ni[0][i],N,Pgas,Tgas,dTgas,Ngas,Rogas,Hgas,Nel,dNel,Tv);
+        */
 
-		for(i=1;i<=LEN;i++)
-            gas_TP_calc(&Ni[0][i],N,&Tgas[i],&dTgas[i],&Pgas[i],&Ngas[i],&Rogas[i],&Hgas[i],&Nel[i],&dNel[i],&Tv)
+        //Writing_data***********************************************
+        //if(dot==Ndots)
+        {
+            gas_print(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],tic);
+            dot = 0;
+        }
 
-        if(dot==Ndots)
-			dot = 0;
 	}
-
-    //Writing_data***********************************************
-	if(dot==Ndots)
-		gas_print(&Ni[0][0],N,Nel,Tgas,Pgas,Hgas,Rogas,Te,Tv,tic);
 
 	return 0;
 }

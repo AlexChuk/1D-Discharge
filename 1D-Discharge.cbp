@@ -32,10 +32,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="1DPoisson.cpp" />
-		<Unit filename="1DPoisson.h" />
-		<Unit filename="1DTransport.cpp" />
-		<Unit filename="1DTransport.h" />
 		<Unit filename="1D_MainFun.cpp" />
 		<Unit filename="1D_MainFun.h" />
 		<Unit filename="1Dmesh.cpp" />
@@ -50,8 +46,6 @@
 		<Unit filename="Gas_calc.h" />
 		<Unit filename="Initials.cpp" />
 		<Unit filename="Initials.h" />
-		<Unit filename="Read_mesh.cpp" />
-		<Unit filename="Read_mesh.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

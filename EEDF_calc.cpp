@@ -455,7 +455,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	return jj;
 }
-void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,double Nel,double tic,int dot)//решение уравнения Больцмана
+void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,double Nel,double tic,int dot)//решение уравнения Больцмана
 {
 	int k,n,m,s,j,J,Jmax,nte;
     double Te0,Te1,Norm,E_kT;
@@ -463,7 +463,7 @@ void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,doubl
 	double A,B,C,F,den;
 	double Vm[NEmax],Vmi[NEmax],D[NEmax],Vm_av;
 	double Ur,Ul,Dr,Dl,Vr,Vl;
-	double Ni1[N],Ne1[NEmax];
+	double Ni[N];
 
 	//Сетка по энергии:
 	/*
@@ -472,11 +472,15 @@ void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,doubl
 	  k=0     1     2     3     4		   k-1    k    k+1                    			   NEmax
 	*/
 
+	for(n=0;n<N;n++)
+        Ni[n] = Nni[n*(LEN+2)];
+
 	nte = 0;
+	Te1 = *Te;
 	do
     //for(nte=0;nte<20;nte++)
     {
-        Te0 = *Te;
+        Te0 = Te1;
 
         //Difinition of D=A and Vm (Raizer)
         for(k=0;k<=NEmax-1;k++)
@@ -679,7 +683,7 @@ void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,doubl
 
         //граничное условие**************************************************
         //Ne[NEmax-1] = 0.0;
-        Ne[NEmax-1] = (F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
+        Ne[NEmax-1] = 0.0;//(F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
 
         //цикл обратной прогонки*********************************************
         for(k=NEmax-2;k>=0;k--)
@@ -710,13 +714,15 @@ void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,doubl
         nte++;
 
     }while(fabs(Te1-Te0)>0.01);
+
+    //Apply_to_used_matrices******************************************
     *Te = Te1;
 
     //Vdr-calculation*************************************************
 
     Vm_av = 0.0;
     for(k=0;k<NEmax;k++)
-    Vm_av += Vm[k]*Ne[k]*dEev;
+        Vm_av += Vm[k]*Ne[k]*dEev;
     Vm_av *= 1.0/Nel;//
     Muel = e/me/Vm_av;
     //Vdr = Muel*E;
@@ -729,21 +735,29 @@ void EEDF_calc(double *Ne,double *Ni,int N,double *Te,double E,double Tgas,doubl
 
 
     //Writing_data***************************************************
-	if(dot==Ndots)
-		EEDF_print(*Te,Nel,tic,Norm);
+	//if(dot==Ndots)
+		EEDF_print(Ne,*Te,Nel,Norm,tic);
 
 	//***************************************************************
 
 }
-void EEDF_const_calc(int N,double *Ne,double *Kel,double Nel)//Kel(EEDF)-calculation
+void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF)-calculation
 {
 	int I,j,k,J,Jmax,n,m;
     double Ki;
 
-    I = 0;
+    for(m=0;m<Nedf;m++)
+    {
+        Ki = 0.0;
+        for(k=int(Ith[m]);k<NEmax;k++)
+            Ki += CS[k][m+1]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
+        Kel[m] = Ki/Nel;
+    }
+
+    /*I = 0;
     for(n=1;n<N;n++)//суммирование по всем компонентам смеси (с кот. сталк. эл-ны)
     {
-        for(m=2;m<CStype;m++)//суммирование по всем типам процессов
+        for(m=2;m<CStype;m++)//суммирование по всем типам процессов, кроме упругих столкновений и возб вращений
         {
             Jmax = CSref[n][m][0];//число пар (Ntarget,CStype)
 
@@ -753,42 +767,47 @@ void EEDF_const_calc(int N,double *Ne,double *Kel,double Nel)//Kel(EEDF)-calcula
                 {
                     J = CSref[n][m][j]-1;//????
                     Ki = 0.0;
-                    for(k=0;k<=NEmax-1;k++)
+                    for(k=int(Ith[J]);k<NEmax;k++)
                         Ki += CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
                     Kel[I] = Ki/Nel;
 
-                    I += 1;
+                    I++;
                 }
             }
         }
-    }
+    }*/
 
+    //Logging*******************************************
+    FILE *log;
+	log = fopen("Kel_data.txt", "w");
+
+	for(m=0; m<Nedf; m++)
+	    fprintf(log,"%d\t%.2e\n",m+1,Kel[m]);
+	fprintf(log,"\n");
+	fclose(log);
+	//Logging*******************************************
 }
-void EEDF_print(double *Ne,double Te,double Nel,double tic,double Norm)//запись EEDF в файл
+void EEDF_print(double *Ne,double Te,double Nel,double Norm,double tic)//запись EEDF в файл
 {
 	int k;
 
+    /*
 	printf("\nt = %.2e[s]\n",tic);
 	printf("Te = %.2lf[eV]\t Ne = %.2e[cm-3]\n",Te,Nel);
+	*/
 
 	FILE *log;
-	log = fopen("EEDF_data.txt", "a+");
+	log = fopen("EEDF_data.txt", "w");
 
-    fprintf(log,"%.2e\t %.2lf\t",tic,Te);
-	for(k=0; k<NEmax; k++)
-	{
-	    fprintf(log,"%.2e\t",Ne[k]/Nel);
-		k += 10;
-	}
-	fprintf(log,"\n");
+    fprintf(log,"t=%.2e[s]\t Te=%.2lf[eV]\n",tic,Te);
+	for(k=0; k<NEmax; k+=5)
+	    fprintf(log,"%.2lf\t%.2e\n",(k+0.5)*dEev,Ne[k]/Nel);
+	fprintf(log,"\n\n");
 
 	/*
 	fprintf(log,"t=%.2e [s]\nNorm=%.2e [cm-3]\nTe=%.2lf [eV]\nE,[eV]\t Ne(E),[cm-3/eV]\n",dt*(nt+1),Norm,Te);//Nel
-	for(k=0; k<NEmax; k++)
-	{
+	for(k=0; k<NEmax; k+10)
 		fprintf(log,"%.2lf\t%.2e\n",dEev*(k+0.5),Ne[k]/Nel);
-		k += 10;
-	}
 	fprintf(log,"\n\n");
 	*/
 	fclose(log);

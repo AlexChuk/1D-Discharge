@@ -51,3 +51,6 @@ Comps_N2.txt
 1D-Discharge.cscope_file_list
 N2_chemistry_new.txt
 Comps_N2.txt
+*.txt
+*.o
+*.o

@@ -23,8 +23,8 @@ radial  //геометрия("radial"/"axial")
 0   200.0 //напряжение_на_правой_границе[В]_if=1-symmetry
 
 
-//Number_Name_Init-concentration_Accomodation(Wall):
-1	e	    0.0	    0.0	    0.0
+//Number_Name_Init-fraction_Accomodation(Wall):
+1	e	    1e-10   0.0	    0.0
 2	N2+	    0.0	    0.0	    0.0
 3	N4+	    0.0	    0.0 	0.0
 4	N2-	    0.0	    0.0 	0.0

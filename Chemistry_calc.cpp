@@ -2,14 +2,14 @@
 # include "Gas_calc.h"
 # include "Chemistry_calc.h"
 
-int Nchem, Nedf;
+//int Nchem, Nedf;
 int VMax[Nmax];
 int ChNRe[NRmax][3];//массив номеров реагентов хим.реакций
 int ChM[Nmax][NRmax],Chem[Nmax][NRmax+3];//массив мультипликаторов реакции,массив необходимых реакций
 
 char Rtype[NRmax][10];//массив типов хим.реакций
 
-double Kch[NRmax],Kchi[NRmax][8];//массив скоростей,констант и коэффициентов скоростей хим.реакций
+double Kchi[NRmax][8];//массив скоростей,констант и коэффициентов скоростей хим.реакций
 double RR[Nmax][NRmax],RRp[Nmax][NRmax],RC[Nmax][NRmax],RCp[Nmax][NRmax];
 
 char RName[NRmax][100];
@@ -613,7 +613,7 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 
 	fclose(log);
 }
-void chem_const(int N,double *Kch,double *Kel,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
+void chem_const(int Nchem,int N,double *Kch,double *Kel,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
 {
 	int j,n,Sum;
 	double Kf;
@@ -653,7 +653,7 @@ void chem_const(int N,double *Kch,double *Kel,double Tel,double Tch,double tic)/
 
             kv10 = Kchi[j][0]*pow(Tch/300.0,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvv = chem_VV_VT_const(N,j,"VV",kv10,Tch);
+            Nvv = chem_VV_VT_const(Kch,N,j,"VV",kv10,Tch);
 
             j += Nvv-1;
         }
@@ -663,7 +663,7 @@ void chem_const(int N,double *Kch,double *Kel,double Tel,double Tch,double tic)/
 
             kv10 = Kchi[j][0]*pow(Tch/300.0,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvv = chem_VV_VT_const(N,j,"VV'",kv10,Tch);
+            Nvv = chem_VV_VT_const(Kch,N,j,"VV'",kv10,Tch);
 
             j += Nvv-1;
         }
@@ -673,7 +673,7 @@ void chem_const(int N,double *Kch,double *Kel,double Tel,double Tch,double tic)/
 
             kv10 = Kchi[j][0]*pow(Tch,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvt = chem_VV_VT_const(N,j,"VT",kv10,Tch);
+            Nvt = chem_VV_VT_const(Kch,N,j,"VT",kv10,Tch);
 
             j += Nvt-1;
         }
@@ -751,7 +751,7 @@ void chem_const(int N,double *Kch,double *Kel,double Tel,double Tch,double tic)/
 	}
 
 }
-int chem_VV_VT_const(int N,int j,char vin[],double kv10,double Tch)// расчёт констант скоростей колебательных реакций
+int chem_VV_VT_const(double *Kch,int N,int j,char vin[],double kv10,double Tch)// расчёт констант скоростей колебательных реакций
 {
     double dvv,Kvv,dvt,Kvt;
     double dEv;
@@ -880,7 +880,7 @@ int chem_VV_VT_const(int N,int j,char vin[],double kv10,double Tch)// расчёт кон
 
     return Nvib;
 }
-void chem_runge_kutta4(double *Ni,int N,double dt,double tic,int dot)//расчёт по времени методом Рунге-Кутта 4 порядка
+void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double tic,int dot)//расчёт по времени методом Рунге-Кутта 4 порядка
 {
 	int i,n,j,l;
 	double al[4] = {0,dt/2,dt/2,dt};
@@ -1000,11 +1000,11 @@ void chem_runge_kutta4(double *Ni,int N,double dt,double tic,int dot)//расчёт по
 
 	//Writing_Chem-Contributions******************************************************
 	if(dot==Ndots)
-		chem_spec_contrib(N,tic);
+		chem_spec_contrib(N,Nchem,tic);
 	//******************************************************************************
 
 }
-void chem_spec_contrib(int N,double tic)//вывод скоростей реакций для выбранных компонент
+void chem_spec_contrib(int N,int Nchem,double tic)//вывод скоростей реакций для выбранных компонент
 {
 	FILE *rrp;
 	FILE *rcp;
