@@ -1,45 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
-	<ActiveTarget name="Debug" />
-	<File name="GasPropDB.txt" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<ActiveTarget name="Release" />
+	<File name="1D_MainFun.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="16" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Initials.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="144" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="1Dmesh.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1953" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Comps_N2.txt" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="950" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="EEDF_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="409" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Initials.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8677" topLine="250" />
-		</Cursor>
-	</File>
-	<File name="1D_MainFun.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="347" topLine="3" />
-		</Cursor>
-	</File>
-	<File name="1Dmesh.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="82" topLine="0" />
+			<Cursor1 position="1272" topLine="33" />
 		</Cursor>
 	</File>
 	<File name="EEDF_calc.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -53,33 +18,37 @@
 			<Collapse line="801" />
 		</Folding>
 	</File>
-	<File name="Gas_calc.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="1D_MainFun.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="6534" topLine="8" />
+			<Cursor1 position="347" topLine="3" />
 		</Cursor>
-		<Folding>
-			<Collapse line="6" />
-			<Collapse line="43" />
-			<Collapse line="141" />
-		</Folding>
+	</File>
+	<File name="1Dmesh.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1953" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="1Dmesh.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="82" topLine="0" />
+		</Cursor>
 	</File>
 	<File name="Chemistry_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="488" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Chemistry_calc.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="GasPropDB.txt" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="19835" topLine="0" />
+			<Cursor1 position="16" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Gas_calc.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1787" topLine="8" />
 		</Cursor>
 		<Folding>
-			<Collapse line="17" />
-			<Collapse line="202" />
-			<Collapse line="349" />
-			<Collapse line="616" />
-			<Collapse line="750" />
-			<Collapse line="879" />
-			<Collapse line="1003" />
+			<Collapse line="6" />
 		</Folding>
 	</File>
 	<File name="Gas_calc.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -87,9 +56,36 @@
 			<Cursor1 position="477" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="1D_MainFun.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Comps_N2.txt" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1272" topLine="33" />
+			<Cursor1 position="950" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Initials.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="144" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Chemistry_calc.cpp" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="25982" topLine="114" />
+		</Cursor>
+		<Folding>
+			<Collapse line="17" />
+			<Collapse line="202" />
+			<Collapse line="349" />
+			<Collapse line="616" />
+			<Collapse line="750" />
+		</Folding>
+	</File>
+	<File name="EEDF_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="409" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Initials.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8677" topLine="250" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

@@ -994,9 +994,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
             Ni[n*(LEN+2)] = 0.0;
 	}
 
-	//Writing_Chem-Contributions******************************************************
+	/*//Writing_Chem-Contributions******************************************************
 	if(dot==Ndots)
-		chem_spec_contrib(N,Nchem,tic);
+		chem_spec_contrib(N,Nchem,tic);*/
 	//******************************************************************************
 
 }

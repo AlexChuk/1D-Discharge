@@ -67,3 +67,6 @@ obj/Debug/1Dmesh.o
 obj/Debug/Chemistry_calc.o
 
 obj/Debug/EEDF_calc.o
+1D-Discharge.layout
+bin/Release/1D-Discharge.exe
+*.depend
