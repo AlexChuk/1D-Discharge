@@ -49,3 +49,49 @@
 	"1D_MainFun.h"
 	"Initials.h"
 
+1492617478 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\1d_mainfun.cpp
+	"1D_MainFun.h"
+
+1492606013 \\mac\home\documents\science\projects\Разработка\1d-discharge\1d_mainfun.h
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<stdlib.h>
+	<algorithm>
+	"Initials.h"
+	"1Dmesh.h"
+	"Chemistry_calc.h"
+	"EEDF_calc.h"
+	"Gas_calc.h"
+
+1482265218 \\mac\home\documents\science\projects\Разработка\1d-discharge\initials.h
+
+1492606013 \\mac\home\documents\science\projects\Разработка\1d-discharge\1dmesh.h
+
+1492606013 \\mac\home\documents\science\projects\Разработка\1d-discharge\chemistry_calc.h
+
+1492606013 \\mac\home\documents\science\projects\Разработка\1d-discharge\eedf_calc.h
+
+1492606013 \\mac\home\documents\science\projects\Разработка\1d-discharge\gas_calc.h
+
+1492606013 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\1dmesh.cpp
+	"1D_MainFun.h"
+	"1Dmesh.h"
+
+1492617401 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\chemistry_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+	"Chemistry_calc.h"
+
+1492615185 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\eedf_calc.cpp
+	"1D_MainFun.h"
+	"EEDF_calc.h"
+
+1492609243 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\gas_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+
+1492606013 source:\\mac\home\documents\science\projects\Разработка\1d-discharge\initials.cpp
+	"1D_MainFun.h"
+	"Initials.h"
+

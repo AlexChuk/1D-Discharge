@@ -33,7 +33,7 @@ int main(void)
 	//Nte = int(dt/dte);
 
 	dot = 0;
-	for(nt=0;nt<2;nt++)//Nt
+	for(nt=0;nt<1;nt++)//Nt
 	{
 		tic += dt;
 		dot += 1;
@@ -45,11 +45,11 @@ int main(void)
             for(i=1;i<=LEN;i++)
             {
                 EEDF_calc(&Ne[i][0],&Ni[0][i],N,&Te[i],E[i],Tgas[i],Nel[i],tic,dot);
-                //EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i]);?????????????????????????????????
+                EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i]);
 
-                /*if((dTgas[i]>10.0) || (nt==0))
-                    chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
-                chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic);*/
+                //if((dTgas[i]>10.0) || (nt==0))
+                chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
+                //chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic);*/
             }
 
         }

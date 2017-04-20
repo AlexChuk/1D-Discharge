@@ -235,7 +235,7 @@ void gas_print(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *H
     {
         fprintf(log,"EEDF(l=%.2lfcm)\t",l[I[i]]);
         for(k=0; k<NEmax; k+=10)
-            fprintf(log,"%.2e\t",Ne[k]/Nel[I[i]]);
+            fprintf(log,"%.2e\t",Ne[NEmax*I[i]+k]/Nel[I[i]]);
         fprintf(log,"\n");
     }
 

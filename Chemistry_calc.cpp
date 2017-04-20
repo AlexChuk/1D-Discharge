@@ -613,7 +613,7 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 
 	fclose(log);
 }
-void chem_const(int Nchem,int N,double *Kch,double *Kel,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
+void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
 {
 	int j,n,Sum;
 	double Kf;

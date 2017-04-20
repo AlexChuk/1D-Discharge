@@ -744,17 +744,19 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF)-calculation
 {
 	int I,j,k,J,Jmax,n,m;
-    double Ki;
+    double Ki,K[Nedf];
 
     for(m=0;m<Nedf;m++)
     {
         Ki = 0.0;
-        for(k=int(Ith[m]);k<NEmax;k++)
+        for(k=0;k<NEmax;k++)//int(Ith[m])
             Ki += CS[k][m+1]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
-        Kel[m] = Ki/Nel;
+        K[m] = Ki/Nel;
+        Kel = K;
     }
 
-    /*I = 0;
+    /*
+    I = 0;
     for(n=1;n<N;n++)//суммирование по всем компонентам смеси (с кот. сталк. эл-ны)
     {
         for(m=2;m<CStype;m++)//суммирование по всем типам процессов, кроме упругих столкновений и возб вращений
@@ -769,20 +771,22 @@ void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF
                     Ki = 0.0;
                     for(k=int(Ith[J]);k<NEmax;k++)
                         Ki += CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
-                    Kel[I] = Ki/Nel;
+                    K[I] = Ki/Nel;
+                    //Kel = K;
 
                     I++;
                 }
             }
         }
-    }*/
+    }
+    */
 
     //Logging*******************************************
     FILE *log;
-	log = fopen("Kel_data.txt", "w");
+	log = fopen("Kel_data.txt", "a+");
 
 	for(m=0; m<Nedf; m++)
-	    fprintf(log,"%d\t%.2e\n",m+1,Kel[m]);
+	    fprintf(log,"%d\t%.2e\t",m+1,Kel[m]);
 	fprintf(log,"\n");
 	fclose(log);
 	//Logging*******************************************
@@ -800,8 +804,8 @@ void EEDF_print(double *Ne,double Te,double Nel,double Norm,double tic)//запись 
 	log = fopen("EEDF_data.txt", "w");
 
     fprintf(log,"t=%.2e[s]\t Te=%.2lf[eV]\n",tic,Te);
-	for(k=0; k<NEmax; k+=5)
-	    fprintf(log,"%.2lf\t%.2e\n",(k+0.5)*dEev,Ne[k]/Nel);
+	for(k=0; k<NEmax; k+=10)
+        fprintf(log,"%.2lf\t%.2e\n",(k+0.5)*dEev,Ne[k]/Nel);
 	fprintf(log,"\n\n");
 
 	/*
