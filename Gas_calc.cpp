@@ -138,7 +138,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 
 	//************************************************************
 }
-void gas_print(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double *E,double *Ne,double tic)//запись в файл
+void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double *E,double *Ne,double tic)//запись в файл
 {
 	int i,k,n;
 	FILE *log;
@@ -147,7 +147,7 @@ void gas_print(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *H
 	i = 1;
 	printf("Time = %.2e[s]\n",tic);
 	printf("Point - l[%d] = %.2lf\n",i,l[i]);
-	printf("P = %.1lf[Torr]\tT = %.1lf[K]\tXe = %.2e\t[%s] = %.2e[cm-3]\n",Pgas[i]/p0,Tgas[i],Nel[i]/Ngas[i],Spec[5],Ni[5*LEN+1]);
+	printf("P = %.1lf[Torr]\tT = %.1lf[K]\tXe = %.2e\t[%s] = %.2e[cm-3]\n",Pgas[i]/p0,Tgas[i],Nel[i]/Ngas[i],Spec[5],Ni[5*(LEN+2)]);
 
     //запись параметров газа*******************************************************************
 	log = fopen("Gas_data.txt", "a+");
@@ -243,3 +243,29 @@ void gas_print(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *H
 
 	fclose(log);
 }
+void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double Nel,double Te,double Tv,double E,double tic)//запись в файл
+{
+    int i,k,n;
+	FILE *log;
+
+	if(tic==0.0)
+    {
+        log = fopen("Gas_TimeData.txt", "w");
+
+        fprintf(log,"t,s\tPgas,Torr\tTgas,K\tTv,[K]\tTe,[K]\tE/N,Td\tNgas,[cm-3]\tXel\t");
+        for(n=0;n<=11;n++)
+            fprintf(log,"%s\t",Spec[n]);
+        fprintf(log,"\n");
+    }
+    else
+        log = fopen("Gas_TimeData.txt", "a+");
+
+
+    fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*E0/Ngas,Ngas,Nel/Ngas);
+    for(n=0;n<=11;n++)
+        fprintf(log,"%.2e\t",Ni[n*(LEN+2)]);
+    fprintf(log,"\n");
+
+	fclose(log);
+}
+

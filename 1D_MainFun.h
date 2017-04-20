@@ -12,11 +12,10 @@
 # include "EEDF_calc.h"
 # include "Gas_calc.h"
 
-
 #ifndef MAINFUN_H
 #define MAINFUN_H
 
-# define LEN 10  //dots per axis
+# define LEN 2  //dots per axis
 # define NEmax 1000
 # define Nmax 100
 # define CSmax 100

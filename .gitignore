@@ -53,7 +53,6 @@ N2_chemistry_new.txt
 Comps_N2.txt
 *.txt
 *.o
-*.o
 
 bin/Debug/1D-Discharge.exe
 

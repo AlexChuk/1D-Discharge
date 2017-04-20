@@ -477,9 +477,9 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 
 	nte = 0;
 	Te1 = *Te;
-	do
+	//do
     //for(nte=0;nte<20;nte++)
-    {
+    //{
         Te0 = Te1;
 
         //Difinition of D=A and Vm (Raizer)
@@ -683,7 +683,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 
         //граничное условие**************************************************
         //Ne[NEmax-1] = 0.0;
-        Ne[NEmax-1] = 0.0;//(F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
+        Ne[NEmax-1] = (F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
 
         //цикл обратной прогонки*********************************************
         for(k=NEmax-2;k>=0;k--)
@@ -713,7 +713,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 
         nte++;
 
-    }while(fabs(Te1-Te0)>0.01);
+    //}while(fabs(Te1-Te0)>0.01);
 
     //Apply_to_used_matrices******************************************
     *Te = Te1;
@@ -736,12 +736,12 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 
     //Writing_data***************************************************
 	//if(dot==Ndots)
-		EEDF_print(Ne,*Te,Nel,Norm,tic);
+		//EEDF_print(Ne,*Te,Nel,Norm,tic);
 
 	//***************************************************************
 
 }
-void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF)-calculation
+void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel,double tic)//Kel(EEDF)-calculation
 {
 	int I,j,k,J,Jmax,n,m;
     double Ki,K[Nedf];
@@ -751,9 +751,10 @@ void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF
         Ki = 0.0;
         for(k=0;k<NEmax;k++)//int(Ith[m])
             Ki += CS[k][m+1]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
-        K[m] = Ki/Nel;
-        Kel = K;
+        Kel[m] = Ki/Nel;
     }
+
+    //Kel = K;
 
     /*
     I = 0;
@@ -781,15 +782,21 @@ void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel)//Kel(EEDF
     }
     */
 
+    /*
     //Logging*******************************************
     FILE *log;
-	log = fopen("Kel_data.txt", "a+");
+    if(tic==0)
+        log = fopen("Kel_data.txt", "w");
+    else
+        log = fopen("Kel_data.txt", "a+");
 
+    fprintf(log,"t=%.2e[s]\n",tic);
 	for(m=0; m<Nedf; m++)
-	    fprintf(log,"%d\t%.2e\t",m+1,Kel[m]);
+	    fprintf(log,"%d\t%.2e\n",m+1,Kel[m]);
 	fprintf(log,"\n");
 	fclose(log);
 	//Logging*******************************************
+	*/
 }
 void EEDF_print(double *Ne,double Te,double Nel,double Norm,double tic)//запись EEDF в файл
 {

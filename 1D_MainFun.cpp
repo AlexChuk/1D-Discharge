@@ -12,7 +12,7 @@ int main(void)
 
     int Nedf,Nchem;
     int i,nt,dot,Nt;
-    double tic;
+    double tic=0.0;
 
     init_read();
 	init_gasDBparser();
@@ -21,21 +21,21 @@ int main(void)
 	mesh_calc(Len);
 	mesh_GFcalc(Geom);
 
-	gas_print(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],0.0);
+	gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],0.0);
+    gas_TimePrint(&Ni[0][1],N,Pgas[1],Tgas[1],Ngas[1],Nel[1],Te[1],Tv[1],E[1],0.0);
 
     Nedf = EEDF_read_CS(N);
 	Nchem = chem_make_react(Nedf);
 	chem_read_react(Nchem,N);
 
-    double Kel[LEN][Nedf],Kch[LEN][Nchem];
+    double Kel[LEN+2][Nedf],Kch[LEN+2][Nchem];
 
 	Nt = int(tau/dt);
 	//Nte = int(dt/dte);
 
 	dot = 0;
-	for(nt=0;nt<1;nt++)//Nt
+	for(nt=0;nt<Nt;nt++)//Nt
 	{
-		tic += dt;
 		dot += 1;
 
 		//1DPoisson_SORsolve(Fi,&Ni[0][0]);
@@ -45,20 +45,21 @@ int main(void)
             for(i=1;i<=LEN;i++)
             {
                 EEDF_calc(&Ne[i][0],&Ni[0][i],N,&Te[i],E[i],Tgas[i],Nel[i],tic,dot);
-                EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i]);
+                //if(dTe[i]>0.1)
+                    EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i],tic);
 
-                //if((dTgas[i]>10.0) || (nt==0))
-                chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
-                //chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic);*/
+                if(nt==0)//((dTgas[i]>10.0) || (nt==0))
+                    chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
+                chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic,dot);
             }
 
         }
 
 		/*
 		for(n=0;n<N;n++)
-            1DTransport_SWEEPsolve(n,Ni);
+            Transport_SWEEPsolve(&Ni[n][0],N,Tgas,dt/2.0,tic);
 
-        1DHeatTransport_SWEEPsolve(Ni);
+        HeatTransport_SWEEPsolve(&Ni[0][0],N,Tgas,dt/2.0,tic);
         */
         /*
         for(i=0;i<=LEN+1;i++)
@@ -66,13 +67,17 @@ int main(void)
         */
 
         //Writing_data***********************************************
-        //if(dot==Ndots)
+        if(dot==Ndots)
         {
-            gas_print(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],tic);
+            gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],tic);
+            gas_TimePrint(&Ni[0][1],N,Pgas[1],Tgas[1],Ngas[1],Nel[1],Te[1],Tv[1],E[1],tic);
             dot = 0;
         }
 
+        tic += dt;
+
 	}
+
 
 	return 0;
 }

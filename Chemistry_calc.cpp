@@ -617,6 +617,7 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
 {
 	int j,n,Sum;
 	double Kf;
+	double Nv,kv10;
 
 	int xRev=0;//счётчик запуска счета констант реакций с ID - Rev
     Tel = Tel*eV_K;//[K]
@@ -649,33 +650,27 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
 		}
         if(!strcmp(Rtype[j],"VV"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T^0.33), k-[см^3/с], Ea-[K]
         {
-            double Nvv,kv10;
-
             kv10 = Kchi[j][0]*pow(Tch/300.0,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvv = chem_VV_VT_const(Kch,N,j,"VV",kv10,Tch);
+            Nv = chem_VV_VT_const(Kch,N,j,"VV",kv10,Tch);
 
-            j += Nvv-1;
+            j += Nv-1;
         }
         if(!strcmp(Rtype[j],"VV'"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T^0.33), k-[см^3/с], Ea-[K]
         {
-            double Nvv,kv10;
-
             kv10 = Kchi[j][0]*pow(Tch/300.0,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvv = chem_VV_VT_const(Kch,N,j,"VV'",kv10,Tch);
+            Nv = chem_VV_VT_const(Kch,N,j,"VV'",kv10,Tch);
 
-            j += Nvv-1;
+            j += Nv-1;
         }
         if(!strcmp(Rtype[j],"VT"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T^0.33), k-[см^3/с], Ea-[K]
         {
-            double Nvt,kv10;
-
             kv10 = Kchi[j][0]*pow(Tch,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
-            Nvt = chem_VV_VT_const(Kch,N,j,"VT",kv10,Tch);
+            Nv = chem_VV_VT_const(Kch,N,j,"VT",kv10,Tch);
 
-            j += Nvt-1;
+            j += Nv-1;
         }
 		if(!strcmp(Rtype[j],"Rev"))//вычисление констант обратных реакций
 		{
@@ -707,10 +702,13 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
 
 			Kch[j] = Kb;
 		}
+
+        //printf("R#%d\tKch=%.2e[cm^-3]\n",j+1,Kch[j]);
+
 	}
 
-	//Logging_Kch***********************************************************
-	if(tic==0)//((dot==Ndots)||(nt==0))
+	/*//Logging_Kch***********************************************************
+	//if(tic==0)//((dot==Ndots)||(nt==0))
 	{
 		FILE *log;
 		if(tic==0)
@@ -718,14 +716,12 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
         else
             log = fopen("Log_Kch.txt", "a+");
 
+        fprintf(log,"(R#) Reaction\tt=%.2e[s]\n",tic);
+        for(j=0; j<Nchem; j++)
+            fprintf(log,"%s\t%.2e\n",RName[j],Kch[j]);
+        fprintf(log,"\n\n");
 
-            fprintf(log,"(R#) Reaction\tt=%.2e[s]\n",tic);
-            for(j=0; j<Nchem; j++)
-                fprintf(log,"%s\t%.2e\n",RName[j],Kch[j]);
-            fprintf(log,"\n\n");
-
-
-		/*else
+		else
         {
             log = fopen("Log_Kch.txt", "r+");
             //rewind(log);
@@ -745,10 +741,10 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
                 cmt[0] = '\0';
             }
             fprintf(log,"\n\n");
-        }*/
+        }
 
 		fclose(log);
-	}
+	}*/
 
 }
 int chem_VV_VT_const(double *Kch,int N,int j,char vin[],double kv10,double Tch)// расчёт констант скоростей колебательных реакций
@@ -895,9 +891,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 		for(n=0;n<N;n++)
 		{
 			if(i==0)
-				Ci[n] = Ni[n];
+				Ci[n] = Ni[n*(LEN+2)];
 			else
-				Ci[n] = Ni[n]+al[i]*Rch_rk[i-1][n];
+				Ci[n] = Ni[n*(LEN+2)]+al[i]*Rch_rk[i-1][n];
 		}
 
 		//вычисление скоростей химических реакций************************************************************
@@ -993,9 +989,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 	//обновление концентраций
 	for(n=0;n<N;n++)
 	{
-	    Ni[n] += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
-	    if(Ni[n]<1.0e-30)
-            Ni[n] = 0.0;
+	    Ni[n*(LEN+2)] += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
+	    if(Ni[n*(LEN+2)]<1.0e-30)
+            Ni[n*(LEN+2)] = 0.0;
 	}
 
 	//Writing_Chem-Contributions******************************************************
