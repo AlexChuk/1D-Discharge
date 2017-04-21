@@ -455,7 +455,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	return jj;
 }
-void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,double Nel,double tic,int dot)//решение уравнения Больцмана
+void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,double Tgas,double Nel,double tic,int dot)//решение уравнения Больцмана
 {
 	int k,n,m,s,j,J,Jmax,nte;
     double Te0,Te1,Norm,E_kT;
@@ -478,7 +478,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 	nte = 0;
 	Te1 = *Te;
 	//do
-    //for(nte=0;nte<20;nte++)
+    //(nte=0;nte<20;nte++)
     //{
         Te0 = Te1;
 
@@ -713,10 +713,11 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double E,double Tgas,doub
 
         nte++;
 
-    //}while(fabs(Te1-Te0)>0.01);
+    //}while(fabs(Te1-Te0)>0.05);
 
     //Apply_to_used_matrices******************************************
     *Te = Te1;
+    *dTe = Te1-Te0;
 
     //Vdr-calculation*************************************************
 

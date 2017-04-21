@@ -105,7 +105,8 @@ void init_data()//задание начальных условий
         {
             Ni[n][i] = Xinit[n]*Ngas[i];
             Rogas[i] += Ni[n][i]*Mi[n];
-            Hgas[i] += HCpSi[0][n]*Rogas[i];//[эрг/cm^3]
+            if(n>=1)
+                Hgas[i] += HCpSi[0][n]*Rogas[i];//[эрг/cm^3]
         }
         Nel[i] = Ni[0][i];
     }

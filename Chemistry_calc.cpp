@@ -707,8 +707,8 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
 
 	}
 
-	/*//Logging_Kch***********************************************************
-	//if(tic==0)//((dot==Ndots)||(nt==0))
+	//Logging_Kch***********************************************************
+	if(tic==0.0)//(dot==Ndots)
 	{
 		FILE *log;
 		if(tic==0)
@@ -721,7 +721,7 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
             fprintf(log,"%s\t%.2e\n",RName[j],Kch[j]);
         fprintf(log,"\n\n");
 
-		else
+		/*else
         {
             log = fopen("Log_Kch.txt", "r+");
             //rewind(log);
@@ -741,10 +741,10 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
                 cmt[0] = '\0';
             }
             fprintf(log,"\n\n");
-        }
+        }*/
 
 		fclose(log);
-	}*/
+	}
 
 }
 int chem_VV_VT_const(double *Kch,int N,int j,char vin[],double kv10,double Tch)// расчёт констант скоростей колебательных реакций
@@ -994,9 +994,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
             Ni[n*(LEN+2)] = 0.0;
 	}
 
-	/*//Writing_Chem-Contributions******************************************************
+	//Writing_Chem-Contributions******************************************************
 	if(dot==Ndots)
-		chem_spec_contrib(N,Nchem,tic);*/
+		chem_spec_contrib(N,Nchem,tic);
 	//******************************************************************************
 
 }

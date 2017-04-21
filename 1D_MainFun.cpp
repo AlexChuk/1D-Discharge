@@ -28,7 +28,7 @@ int main(void)
 	Nchem = chem_make_react(Nedf);
 	chem_read_react(Nchem,N);
 
-    double Kel[LEN+2][Nedf],Kch[LEN+2][Nchem];
+    double Kel[LEN+2][Nedf],Kch[LEN+2][Nchem],dTe[LEN+2];
 
 	Nt = int(tau/dt);
 	//Nte = int(dt/dte);
@@ -44,27 +44,28 @@ int main(void)
         {
             for(i=1;i<=LEN;i++)
             {
-                EEDF_calc(&Ne[i][0],&Ni[0][i],N,&Te[i],E[i],Tgas[i],Nel[i],tic,dot);
-                //if(dTe[i]>0.1)
+                //if(nt==0)
+                {
+                    EEDF_calc(&Ne[i][0],&Ni[0][i],N,&Te[i],&dTe[i],E[i],Tgas[i],Nel[i],tic,dot);
                     EEDF_const_calc(&Ne[i][0],N,&Kel[i][0],Nedf,Nel[i],tic);
+                }
 
-                if(nt==0)//((dTgas[i]>10.0) || (nt==0))
+                //if(nt==0)//((dTgas[i]>10.0) || (nt==0))
                     chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
-                chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic,dot);
+                    chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt,tic,dot);
             }
 
         }
 
 		/*
 		for(n=0;n<N;n++)
-            Transport_SWEEPsolve(&Ni[n][0],N,Tgas,dt/2.0,tic);
+            Transport_SWEEPsolve(&Ni[n][0],N,Ngas,Tgas,dt/2.0,tic);
 
-        HeatTransport_SWEEPsolve(&Ni[0][0],N,Tgas,dt/2.0,tic);
+        HeatTransport_SWEEPsolve(&Ni[0][0],N,Ngas,Tgas,dt/2.0,tic);
         */
-        /*
-        for(i=0;i<=LEN+1;i++)
-            gas_TP_calc(&Ni[0][i],N,Pgas,Tgas,dTgas,Ngas,Rogas,Hgas,Nel,dNel,Tv);
-        */
+
+        //for(i=0;i<=LEN+1;i++)
+            //gas_TP_calc(&Ni[0][i],N,Pgas,Tgas,dTgas,Ngas,Rogas,Hgas,Nel,dNel,Tv);
 
         //Writing_data***********************************************
         if(dot==Ndots)
