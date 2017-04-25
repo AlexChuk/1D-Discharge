@@ -42,29 +42,6 @@ extern double Mi[Nmax],HCpSi[3][Nmax],CXi[Nmax][2][8];
 extern double Emax,dE,dEev;
 extern char Geom[10];
 extern double Len;
-
 extern double l[LEN+3];
-//extern double tau,dt;//dte;
-
-/*
-old declaration:
-
-extern int N,Nt,Nte,Nchem,Nedf,Ndots,NR;
-
-extern double E,E_N,Nel,Ee,Te,Tv,Muel,Jel,Qel,QE;
-extern double dTgas,dTe,dNel;
-extern double Len,Tw,Lam;
-extern double tau,dt,dte;
-
-extern double Kel[CSmax];
-extern double HCpSi[3][Nmax];
-
-extern char Rtype[NRmax][10];
-
-extern int v0,vlen;
-extern double V0,Vlen;
-
-*/
-
 
 #endif

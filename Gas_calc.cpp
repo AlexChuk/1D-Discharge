@@ -48,8 +48,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
     double Hi,Cpi;
 	double ftn,Ftn,Tnn,Tn,dT,Nn;
 
-	dTgas = Tgas;
-	dNel = Nel;
+	*dNel = *Nel;
 
 	//Присвоение значений из адресов переменных
 	Tin = *Tgas;
@@ -70,7 +69,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	Tn = Tin;//300;//Temp0;//Tin;//
 	Nn = Nin;
 	Tnn = Tin;
-	/*do
+	do
 	{
 		if(!Tnn==0)
 		{
@@ -96,7 +95,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 
 		dT = fabs(Tnn-Tn);
 
-	}while(dT>0.01);*/
+	}while(dT>0.01);
 	Tout = Tnn;//Tin//300;
 
 	//Isobaric process**************************************
@@ -112,7 +111,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	gas_HCpSi_calc(Tout,N);
 	Hout = 0;
 	for(n=1;n<N;n++)
-		Hout += Xi[n]*Mi[n]*Nout*HCpSi[0][n];
+		Hout += Xi[n]*Mi[n]*Nout*HCpSi[0][n];//[эрг/cm^3]
 
 	//Return to using variables:
 	*Pgas = Pout;
@@ -120,12 +119,13 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	*Ngas = Nout;
 	*Rogas = Roout;
 	*Hgas = Hout;
-    *dTgas = fabs(*dTgas-Tout);
+    *dTgas = fabs(Tin-Tout);
 
 	for(n=0;n<N;n++)
         Ni[n*(LEN+2)] = Nout*Xi[n];
 
-    *Nel = Nout*Xi[0];//концентрация электронов
+    //концентрация электронов
+    *Nel = Nout*Xi[0];
     *dNel = fabs(*dNel-*Nel);
 
     //Tv-calculation

@@ -455,7 +455,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	return jj;
 }
-void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,double Tgas,double Nel,double tic,int dot)//решение уравнения Больцмана
+void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,double Tgas,double Nel,double dte,double tic,int dot)//решение уравнения Больцмана
 {
 	int k,n,m,s,j,J,Jmax,nte;
     double Te0,Te1,Norm,E_kT;
@@ -477,9 +477,9 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
 	nte = 0;
 	Te1 = *Te;
-	//do
+	do
     //(nte=0;nte<20;nte++)
-    //{
+    {
         Te0 = Te1;
 
         //Difinition of D=A and Vm (Raizer)
@@ -682,8 +682,8 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
         }
 
         //граничное условие**************************************************
-        //Ne[NEmax-1] = 0.0;
-        Ne[NEmax-1] = (F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
+        Ne[NEmax-1] = 0.0;
+        //Ne[NEmax-1] = (F-A*bet[NEmax-1])/(A*al[NEmax-1]+C);
 
         //цикл обратной прогонки*********************************************
         for(k=NEmax-2;k>=0;k--)
@@ -713,7 +713,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
         nte++;
 
-    //}while(fabs(Te1-Te0)>0.05);
+    }while(fabs(Te1-Te0)>0.005);
 
     //Apply_to_used_matrices******************************************
     *Te = Te1;

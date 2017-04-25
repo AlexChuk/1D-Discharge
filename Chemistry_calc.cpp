@@ -990,6 +990,7 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 	for(n=0;n<N;n++)
 	{
 	    Ni[n*(LEN+2)] += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
+
 	    if(Ni[n*(LEN+2)]<1.0e-30)
             Ni[n*(LEN+2)] = 0.0;
 	}

@@ -8,7 +8,7 @@ double E[LEN+2],Fi[LEN+2];
 double Tinit,Pinit,Xinit[Nmax],E_N;
 double dTgas,dTe,dNel;
 double Len,Tw,Lam;
-double tau,dt,dte;
+double tau,dt;
 double Emax,dE,dEev;
 int v0,vlen;
 double V0,Vlen;
@@ -39,7 +39,6 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%d%s",&N,&Cmt);
 	fscanf(init,"%lf%s",&tau,&Cmt);
 	fscanf(init,"%lf%s",&dt,&Cmt);
-	fscanf(init,"%lf%s",&dte,&Cmt);
 	fscanf(init,"%d%s",&Ndots,&Cmt);
 	fscanf(init,"%lf%s",&Pinit,&Cmt);
 	fscanf(init,"%lf%s",&Tinit,&Cmt);
@@ -106,7 +105,7 @@ void init_data()//задание начальных условий
             Ni[n][i] = Xinit[n]*Ngas[i];
             Rogas[i] += Ni[n][i]*Mi[n];
             if(n>=1)
-                Hgas[i] += HCpSi[0][n]*Rogas[i];//[эрг/cm^3]
+                Hgas[i] += HCpSi[0][n]*Ni[n][i]*Mi[n];//[эрг/cm^3]
         }
         Nel[i] = Ni[0][i];
     }
