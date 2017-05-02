@@ -64,8 +64,11 @@ int main(void)
         HeatTransport_SWEEPsolve(&Ni[0][0],N,Ngas,Tgas,dt/2.0,tic);
         */
 
-        //for(i=0;i<=LEN+1;i++)
-            //gas_TP_calc(&Ni[0][i],N,&Pgas[i],&Tgas[i],&dTgas[i],&Ngas[i],&Rogas[i],&Hgas[i],&Nel[i],&dNel[i],&Tv[i]);
+        /*for(i=1;i<=LEN;i++)
+        {
+            gas_TP_calc(&Ni[0][i],N,&Pgas[i],&Tgas[i],&dTgas[i],&Ngas[i],&Rogas[i],&Hgas[i],&Nel[i],&dNel[i],&Tv[i]);
+            gas_TimePrint(&Ni[0][i],N,Pgas[i],Tgas[i],Ngas[i],Nel[i],Te[i],Tv[i],E[i],dt);
+        }*/
 
         tic += dt;
 
