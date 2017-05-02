@@ -1,26 +1,15 @@
 # include "1D_MainFun.h"
 # include "1DTransport.h"
 
-double GF_L[I+2],GF_R[I+2];
-double Di[I+2],Mui[I+2];
-double al_bound[N][2];
+double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
+double Di[LEN+2],Mui[LEN+2];
+double al_bound[2];
 int Gf = 0;
 
-void Trasport_coefs_calc()
-{
-    int i;
-    for(i=0;i<I+2;i++)
-    {
-        Di[i] = 0.0;
-        Mui[i] = 0.0;//e/me/Vm_av;
-        //from EEDF_calc;
-    }
-}
-int Trasport_GFcalc(char Geom)
+void Transport_GFcalc(char *Geom)
 {
     //—етка по длине:
-	/*
-                left wall                                                               right wall
+	/*           left wall                                                               right wall
     Ni[i]         |                                                                       |
     Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
             |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
@@ -29,34 +18,57 @@ int Trasport_GFcalc(char Geom)
                   |                                                                       |
     */
 
-    double lC,dlC; //координаты центров €чеек,разности граней [i]-й €чейки
     int i;
+    double lC,lR,lL; //координаты центров €чеек
+    double dlC,dlR,dlL; //разности граней [i]-й €чейки, между центрами €чеек слева ([i-1] и [i]) и справа ([i] и [i+1])
 
     if(!strcmp(Geom,"radial"))
     {
-        for(i=1;i<I+1;i++)
+        for(i=1;i<LEN+1;i++)
         {
+            lL = 0.5*(l[i-1]+l[i]);
             lC = 0.5*(l[i]+l[i+1]);
+            lR = 0.5*(l[i+1]+l[i+2]);
 
+            dlL = lC-lL;
             dlC = l[i+1]-l[i];
+            dlR = lR-lC;
 
-            GF_L[i] = l[i]/(lC*dlC);
-            GF_R[i] = l[i+1]/(lC*dlC);
+            GF_L[i] = l[i]/(lC*dlC*dlL);
+            GF_R[i] = l[i+1]/(lC*dlC*dlR);
+            GF_C[i] = -(GF_R[i]+GF_L[i]);
         }
 
     }
     else if(!strcmp(Geom,"axis"))
     {
-        for(i=1;i<I+1;i++)
+        for(i=1;i<LEN+1;i++)
         {
-            dlC = l[i+1]-l[i];
+            lL = 0.5*(l[i-1]+l[i]);
+            lC = 0.5*(l[i]+l[i+1]);
+            lR = 0.5*(l[i+1]+l[i+2]);
 
-            GF_L[i] = 1.0/dlC;
-            GF_R[i] = 1.0/dlC;
+            dlL = lC-lL;
+            dlC = l[i+1]-l[i];
+            dlR = lR-lC;
+
+            GF_L[i] = 1.0/(dlC*dlL);
+            GF_R[i] = 1.0/(dlC*dlR);
+            GF_C[i] = -(GF_R[i]+GF_L[i]);
         }
     }
+
 }
-void Transport_SWEEPsolve(int n,double Ni,int Gf)
+void Trasport_coefs_calc(double *Ni,double *Di,double *Mui)
+{
+    for(int i=0;i<LEN+2;i++)
+    {
+        Di[i] = 1.0;
+        Mui[i] = 1.0;//e/me/Vm_av;
+        //from EEDF_calc;
+    }
+}
+void Transport_SWEEPsolve(double *Ni,int n,double *Di,double *Mui,double *Ngas,double *Tgas,double *E,double dt,double tic)
 {
 	/*
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -106,45 +118,45 @@ void Transport_SWEEPsolve(int n,double Ni,int Gf)
             A_L,A_R,A_C;
 
     double  A,B,C,F,den,
-            al[I+1],bet[I+1];
+            al[LEN+1],bet[LEN+1];
 
     int i,ii;
 
-	if(Gf==0)
-        Gf = Transport_GFcalc(char Geom);
+	//if(Gf==0)
+        //Gf = Transport_GFcalc(char Geom);
 
     //Boundary_conditions*****************************************
-    Transport_boundary(n);
+    Transport_boundary(n,Di,Mui,Tgas,E);
 
     //SWEEP-SHUTTLE_CICLE*****************************************
 
     //Defining_sweep_coefficients
-    for(i=1;i<=I;i++)
+    for(i=1;i<=LEN;i++)
     {
         //Diffusion
         D_L = D_R;
         if(i==1)
-            D_L = 0.5*(D[n][i]+D[n][i-1]);
-        D_R = 0.5*(D[n][i+1]+D[n][i]);
+            D_L = 0.5*(Di[i]+Di[i-1]);
+        D_R = 0.5*(Di[i+1]+Di[i]);
 
         //Drift
         Vdr_L = Vdr_R;
         if(i==1)
-            Vdr_L = 0.5*(Mui[n][i]+Mui[n][i-1])*E[i-1];
-        Vdr_R = 0.5*(Mui[n][i+1]+Mui[n][i])*E[i];
+            Vdr_L = 0.5*(Mui[i]+Mui[i-1])*E[i-1];
+        Vdr_R = 0.5*(Mui[i+1]+Mui[i])*E[i];
 
         //DDT_Coefficients:
         //right-edge
         dL = 0.5*(l[i+2]-l[i]);
         Pe = fabs(Vdr_R*dL/D_R);
         fPe = pow((1.0-0.1*Pe),5.0);
-        A_R = D_R*max(0.0,fPe)+max(-Vdr_R,0.0);
+        A_R = D_R*std::max(0.0,fPe)+std::max(-Vdr_R,0.0);
 
         //left-edge
         dL = 0.5*(l[i+1]-l[i-1]);
         Pe = fabs(Vdr_L*dL/D_L);
         fPe = pow((1.0-0.1*Pe),5.0);
-        A_L = D_L*max(0.0,fPe)+max(Vdr_L,0.0);
+        A_L = D_L*std::max(0.0,fPe)+std::max(Vdr_L,0.0);
 
         //Accounting for Geometry Factors:
         A_R = A_R*GF_R[i];
@@ -155,11 +167,11 @@ void Transport_SWEEPsolve(int n,double Ni,int Gf)
         A = -A_L;//[i-1](left_cell)
         B = -A_R;//[i+1](right_cell)
         C = A_C+1.0/dt;//[i](center_cell)
-        F = Ni[n][i]*1.0/dt + Rchem[n][i];//RHS-part
+        F = Ni[i]*1.0/dt;//+ Rchem[i];//RHS-part
 
         if(i==1)//see Transport_boundary();
         {
-            al[i-1] = al_bound[n][0];
+            al[i-1] = al_bound[0];
             bet[i-1] = 0.0;
         }
 
@@ -167,59 +179,59 @@ void Transport_SWEEPsolve(int n,double Ni,int Gf)
         al[i] = -B*den;
         bet[i] = (F-A*bet[i-1])*den;
 
-        if(i==I)//see Transport_boundary();]
+        if(i==LEN)//see Transport_boundary();]
         {
-            al[i] = al_bound[n][1];
+            al[i] = al_bound[1];
             bet[i] = 0.0;
         }
 
     }
 
     //Reverse_sweep_cycle************************************************
-    for(i=I;i>=0;i--)
+    for(i=LEN;i>=0;i--)
     {
-        Ni[n][i] = al[i]*Ni[n][i+1]+bet[i];
-        if(Ni[n][i]<1.e-30)
-            Ni[n][i] = 0.0;
+        Ni[i] = al[i]*Ni[i+1]+bet[i];
+        if(Ni[i]<1.e-30)
+            Ni[i] = 0.0;
     }
-
-    return 0;
 }
-void Transport_boundary(int n)
+void Transport_boundary(int n,double *Di,double *Mui,double *Tgas,double *E)
 {
     double Pe,D,Vd,Vt;
 
     //left_boundary*************************************************
     if(Gamma[n][0] == 0.0)//Ni[n][0] = Ni[n][1];
-        al_bound[n][0] = 1.0;
+        al_bound[0] = 1.0;
     else//equation for DDT with kinetic wall flux
     {
-        D = 0.5*(D[n][1]+D[n][0]);
-        Vd = 0.5*(Mui[n][1]+Mui[n][0])*E[0];
+        D = 0.5*(Di[1]+Di[0]);
+        Vd = 0.5*(Mui[1]+Mui[0])*E[0];
 
         Pe = Vd*0.5*(l[2]-l[0])/D;
         Vt = sqrt(8*kb*Tgas[0]/(pi*Mi[n]));
 
-        al_bound[n][0] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
+        al_bound[0] = (1.0+0.25*Gamma[n][0]*Pe*Vt/Vd)/(1.0+Pe);
     }
 
     //right_boundary************************************************
     if(Gamma[n][1] == 0.0)//Ni[n][I+1] = Ni[n][I];
-        al_bound[n][1] = 1.0;
+        al_bound[1] = 1.0;
     else//equation for DDT with kinetic wall flux
     {
-        D = 0.5*(D[n][I+1]+D[n][I]);
-        Vd = 0.5*(Mui[n][I]+Mui[n][I+1])*E[I];
+        D = 0.5*(Di[LEN+1]+Di[LEN]);
+        Vd = 0.5*(Mui[LEN]+Mui[LEN+1])*E[LEN];
 
-        Pe = Vd*0.5*(l[I+2]-l[I])/D;
-        Vt = sqrt(8*kb*Temp[I+1]/(pi*Mi[n]));
+        Pe = Vd*0.5*(l[LEN+2]-l[LEN])/D;
+        Vt = sqrt(8*kb*Tgas[LEN+1]/(pi*Mi[n]));
 
-        al_bound[n][1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
+        al_bound[1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
     }
 
 }
 void HeatTransport_SWEEPsolve(double Ni, int Gf)
 {
+    double Lam,Hin;
+
     //—етка по длине:
 	/*
                 left wall                                                               right wall
@@ -232,8 +244,8 @@ void HeatTransport_SWEEPsolve(double Ni, int Gf)
     */
 
     //”чет нагрева электронами в упругих соударени€х + нагрев газа полем + теплопроводность на стенку трубки
-    Lam = 1.0e+7*(2.714+5.897e-3*Tin)*1.0e-4; //[Ёрг/(с*см^2*K)]Ref. - Nuttall_JRNBS_1957 (N2)
-    Hin += (Qel)*dt - Lam*(Tin-Tw)/pow(Rad/2.4,2.0)*dt;//w/o QE
+    //Lam = 1.0e+7*(2.714+5.897e-3*Tin)*1.0e-4; //[Ёрг/(с*см^2*K)]Ref. - Nuttall_JRNBS_1957 (N2)
+    //Hin += (Qel)*dt - Lam*(Tin-Tw)/pow(Rad/2.4,2.0)*dt;//w/o QE
 
 
 }

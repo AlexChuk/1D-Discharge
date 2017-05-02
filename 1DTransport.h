@@ -1,10 +1,10 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
-void Trasport_coefs_calc();
-int Trasport_GFcalc(char);
-void Transport_SWEEPsolve(int,double *,int);
-void Transport_boundary(int);
+void Transport_GFcalc(char *);
+void Trasport_coefs_calc(double *,double *,double *);
+void Transport_SWEEPsolve(double *,int,double *,double *,double *,double *,double *,double,double);
+void Transport_boundary(int ,double *,double *,double *,double *);
 void HeatTransport_SWEEPsolve(double *,int);
 void HeatTransport_boundary();
 

@@ -7,7 +7,7 @@
 # include "Initials.h"
 # include "1Dmesh.h"
 //# include "1DPoisson.h"
-//# include "1DTransport.h"
+# include "1DTransport.h"
 # include "Chemistry_calc.h"
 # include "EEDF_calc.h"
 # include "Gas_calc.h"
@@ -15,7 +15,7 @@
 #ifndef MAINFUN_H
 #define MAINFUN_H
 
-# define LEN 2  //dots per axis
+# define LEN 5  //dots per axis
 # define NEmax 1000
 # define Nmax 100
 # define CSmax 100
@@ -43,5 +43,6 @@ extern double Emax,dE,dEev;
 extern char Geom[10];
 extern double Len;
 extern double l[LEN+3];
+extern double Gamma[Nmax][2];
 
 #endif

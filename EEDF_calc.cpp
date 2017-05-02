@@ -473,7 +473,8 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 	*/
 
 	for(n=0;n<N;n++)
-        Ni[n] = Nni[n*(LEN+2)];
+        //Ni[n] = Nni[n*(LEN+2)];
+        Ni[n] = *(Nni+n*(LEN+2));
 
 	nte = 0;
 	Te1 = *Te;

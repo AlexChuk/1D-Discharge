@@ -58,12 +58,16 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	Roin = 0.0;
 	for(n=0;n<N;n++)
 	{
-		Nin += Ni[n*(LEN+2)];
-		Roin += Ni[n*(LEN+2)]*Mi[n];
+		//Nin += Ni[n*(LEN+2)];
+		Nin += *(Ni+n*(LEN+2));
+		//Roin += Ni[n*(LEN+2)]*Mi[n];
+		Roin += *(Ni+n*(LEN+2))*Mi[n];
 	}
 
     for(n=0;n<N;n++)
-        Xi[n] = Ni[n*(LEN+2)]/Nin;
+        //Xi[n] = Ni[n*(LEN+2)]/Nin;
+        Xi[n] = *(Ni+n*(LEN+2))/Nin;
+
 
     //Расчёт температуры_методом Ньютона
 	Tn = Tin;//300;//Temp0;//Tin;//
@@ -122,7 +126,8 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
     *dTgas = fabs(Tin-Tout);
 
 	for(n=0;n<N;n++)
-        Ni[n*(LEN+2)] = Nout*Xi[n];
+        //Ni[n*(LEN+2)] = Nout*Xi[n];
+        *(Ni+n*(LEN+2)) = Nout*Xi[n];
 
     //концентрация электронов
     *Nel = Nout*Xi[0];
@@ -135,7 +140,8 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
             break;
     }*/
     n=11;
-    *Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log(Ni[n*(LEN+2)]/Ni[(n+1)*(LEN+2)]);
+    //*Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log(Ni[n*(LEN+2)]/Ni[(n+1)*(LEN+2)]);
+    *Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log((*(Ni+n*(LEN+2)))/(*(Ni+(n+1)*(LEN+2))));
 
 	//************************************************************
 }
@@ -264,7 +270,7 @@ void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double N
 
     fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*E0/Ngas,Ngas,Nel/Ngas);
     for(n=0;n<=11;n++)
-        fprintf(log,"%.2e\t",Ni[n*(LEN+2)]);
+        fprintf(log,"%.2e\t",*(Ni+n*(LEN+2)));
     fprintf(log,"\n");
 
 	fclose(log);

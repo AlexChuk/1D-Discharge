@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="1DTransport.cpp" />
+		<Unit filename="1DTransport.h" />
 		<Unit filename="1D_MainFun.cpp" />
 		<Unit filename="1D_MainFun.h" />
 		<Unit filename="1Dmesh.cpp" />

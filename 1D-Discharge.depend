@@ -95,3 +95,215 @@
 	"1D_MainFun.h"
 	"Initials.h"
 
+1493308811 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1dmesh.cpp
+	"1D_MainFun.h"
+	"1Dmesh.h"
+
+1493378573 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1d_mainfun.h
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<stdlib.h>
+	<algorithm>
+	"Initials.h"
+	"1Dmesh.h"
+	"1DTransport.h"
+	"Chemistry_calc.h"
+	"EEDF_calc.h"
+	"Gas_calc.h"
+
+1479139312 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\initials.h
+
+1491840554 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1dmesh.h
+
+1492511598 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\chemistry_calc.h
+
+1493126687 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\eedf_calc.h
+
+1492703435 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\gas_calc.h
+
+1493327370 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+	"Chemistry_calc.h"
+
+1493326660 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\eedf_calc.cpp
+	"1D_MainFun.h"
+	"EEDF_calc.h"
+
+1493327896 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\gas_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+
+1493141995 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\initials.cpp
+	"1D_MainFun.h"
+	"Initials.h"
+
+1493308772 \\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1dtransport.h
+
+1493328764 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
+	"1D_MainFun.h"
+
+1493308792 source:\\mac\home\documents\science\projects\Разработка\1d-discharge_develop\1d-discharge\1dtransport.cpp
+	"1D_MainFun.h"
+	"1DTransport.h"
+
+1493328764 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
+	"1D_MainFun.h"
+
+1493378573 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1d_mainfun.h
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<stdlib.h>
+	<algorithm>
+	"Initials.h"
+	"1Dmesh.h"
+	"1DTransport.h"
+	"Chemistry_calc.h"
+	"EEDF_calc.h"
+	"Gas_calc.h"
+
+1479139312 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\initials.h
+
+1491840554 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1dmesh.h
+
+1493308772 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1dtransport.h
+
+1492511598 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\chemistry_calc.h
+
+1493126687 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\eedf_calc.h
+
+1492703435 \\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\gas_calc.h
+
+1493308811 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1dmesh.cpp
+	"1D_MainFun.h"
+	"1Dmesh.h"
+
+1493308792 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\1dtransport.cpp
+	"1D_MainFun.h"
+	"1DTransport.h"
+
+1493327370 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+	"Chemistry_calc.h"
+
+1493326660 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\eedf_calc.cpp
+	"1D_MainFun.h"
+	"EEDF_calc.h"
+
+1493327896 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\gas_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+
+1493141995 source:\\mac\home\documents\science\projects\develop\1d-discharge_develop\1d-discharge\initials.cpp
+	"1D_MainFun.h"
+	"Initials.h"
+
+1493328764 source:\\mac\home\documents\science\projects\develop\1d-discharge\1d_mainfun.cpp
+	"1D_MainFun.h"
+
+1493378573 \\mac\home\documents\science\projects\develop\1d-discharge\1d_mainfun.h
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<stdlib.h>
+	<algorithm>
+	"Initials.h"
+	"1Dmesh.h"
+	"1DTransport.h"
+	"Chemistry_calc.h"
+	"EEDF_calc.h"
+	"Gas_calc.h"
+
+1479139312 \\mac\home\documents\science\projects\develop\1d-discharge\initials.h
+
+1491840554 \\mac\home\documents\science\projects\develop\1d-discharge\1dmesh.h
+
+1493308772 \\mac\home\documents\science\projects\develop\1d-discharge\1dtransport.h
+
+1492511598 \\mac\home\documents\science\projects\develop\1d-discharge\chemistry_calc.h
+
+1493126687 \\mac\home\documents\science\projects\develop\1d-discharge\eedf_calc.h
+
+1492703435 \\mac\home\documents\science\projects\develop\1d-discharge\gas_calc.h
+
+1493308811 source:\\mac\home\documents\science\projects\develop\1d-discharge\1dmesh.cpp
+	"1D_MainFun.h"
+	"1Dmesh.h"
+
+1493308792 source:\\mac\home\documents\science\projects\develop\1d-discharge\1dtransport.cpp
+	"1D_MainFun.h"
+	"1DTransport.h"
+
+1493327370 source:\\mac\home\documents\science\projects\develop\1d-discharge\chemistry_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+	"Chemistry_calc.h"
+
+1493326660 source:\\mac\home\documents\science\projects\develop\1d-discharge\eedf_calc.cpp
+	"1D_MainFun.h"
+	"EEDF_calc.h"
+
+1493327896 source:\\mac\home\documents\science\projects\develop\1d-discharge\gas_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+
+1493141995 source:\\mac\home\documents\science\projects\develop\1d-discharge\initials.cpp
+	"1D_MainFun.h"
+	"Initials.h"
+
+1493394156 source:c:\users\alexander\projects\1d-discharge\1d_mainfun.cpp
+	"1D_MainFun.h"
+
+1493380297 c:\users\alexander\projects\1d-discharge\1d_mainfun.h
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<stdlib.h>
+	<algorithm>
+	"Initials.h"
+	"1Dmesh.h"
+	"1DTransport.h"
+	"Chemistry_calc.h"
+	"EEDF_calc.h"
+	"Gas_calc.h"
+
+1479139312 c:\users\alexander\projects\1d-discharge\initials.h
+
+1491840554 c:\users\alexander\projects\1d-discharge\1dmesh.h
+
+1493308772 c:\users\alexander\projects\1d-discharge\1dtransport.h
+
+1492511598 c:\users\alexander\projects\1d-discharge\chemistry_calc.h
+
+1493126687 c:\users\alexander\projects\1d-discharge\eedf_calc.h
+
+1492703435 c:\users\alexander\projects\1d-discharge\gas_calc.h
+
+1493308811 source:c:\users\alexander\projects\1d-discharge\1dmesh.cpp
+	"1D_MainFun.h"
+	"1Dmesh.h"
+
+1493308792 source:c:\users\alexander\projects\1d-discharge\1dtransport.cpp
+	"1D_MainFun.h"
+	"1DTransport.h"
+
+1493393594 source:c:\users\alexander\projects\1d-discharge\chemistry_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+	"Chemistry_calc.h"
+
+1493326660 source:c:\users\alexander\projects\1d-discharge\eedf_calc.cpp
+	"1D_MainFun.h"
+	"EEDF_calc.h"
+
+1493394841 source:c:\users\alexander\projects\1d-discharge\gas_calc.cpp
+	"1D_MainFun.h"
+	"Gas_calc.h"
+
+1493141995 source:c:\users\alexander\projects\1d-discharge\initials.cpp
+	"1D_MainFun.h"
+	"Initials.h"
+
