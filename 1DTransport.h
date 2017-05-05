@@ -4,7 +4,7 @@
 void Transport_GFcalc(char *);
 void Trasport_coefs_calc(double *,double *,double *);
 void Transport_SWEEPsolve(double *,int,double *,double *,double *,double *,double *,double,double);
-void Transport_boundary(int ,double *,double *,double *,double *);
+void Transport_boundary(double *,int ,double *,double *,double *,double *);
 void HeatTransport_SWEEPsolve(double *,int);
 void HeatTransport_boundary();
 

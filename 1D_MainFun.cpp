@@ -53,12 +53,14 @@ int main(void)
             chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt/2.0,tic,dot);//dt/2.0
         }
 
-        /*for(n=0;n<N;n++)
+        //gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,E,&Ne[0][0],1.0);
+
+        for(n=0;n<N;n++)
         {
             if((dot==Ndots) || (nt==0))
                 Trasport_coefs_calc(&Ni[n][0],&Di[n][0],&Mui[n][0]);
             Transport_SWEEPsolve(&Ni[n][0],n,&Di[n][0],&Mui[n][0],Ngas,Tgas,E,dt/2.0,tic);
-        }*/
+        }
 
         /*
         HeatTransport_SWEEPsolve(&Ni[0][0],N,Ngas,Tgas,dt/2.0,tic);

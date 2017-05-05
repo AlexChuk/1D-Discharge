@@ -63,7 +63,7 @@ void Trasport_coefs_calc(double *Ni,double *Di,double *Mui)
 {
     for(int i=0;i<LEN+2;i++)
     {
-        Di[i] = 1.0;
+        Di[i] = 100.0;
         Mui[i] = 1.0;//e/me/Vm_av;
         //from EEDF_calc;
     }
@@ -126,7 +126,7 @@ void Transport_SWEEPsolve(double *Ni,int n,double *Di,double *Mui,double *Ngas,d
         //Gf = Transport_GFcalc(char Geom);
 
     //Boundary_conditions*****************************************
-    Transport_boundary(n,Di,Mui,Tgas,E);
+    Transport_boundary(Ni,n,Di,Mui,Tgas,E);
 
     //SWEEP-SHUTTLE_CICLE*****************************************
 
@@ -195,13 +195,17 @@ void Transport_SWEEPsolve(double *Ni,int n,double *Di,double *Mui,double *Ngas,d
             Ni[i] = 0.0;
     }
 }
-void Transport_boundary(int n,double *Di,double *Mui,double *Tgas,double *E)
+void Transport_boundary(double *Ni,int n,double *Di,double *Mui,double *Tgas,double *E)
 {
     double Pe,D,Vd,Vt;
 
     //left_boundary*************************************************
     if(Gamma[n][0] == 0.0)//Ni[n][0] = Ni[n][1];
+    {//Ni[n][0] = Ni[n][1];
         al_bound[0] = 1.0;
+
+        Ni[0] = Ni[1];
+    }
     else//equation for DDT with kinetic wall flux
     {
         D = 0.5*(Di[1]+Di[0]);
@@ -211,11 +215,17 @@ void Transport_boundary(int n,double *Di,double *Mui,double *Tgas,double *E)
         Vt = sqrt(8*kb*Tgas[0]/(pi*Mi[n]));
 
         al_bound[0] = (1.0+0.25*Gamma[n][0]*Pe*Vt/Vd)/(1.0+Pe);
+
+        Ni[0] = Ni[1]/al_bound[0];
     }
 
     //right_boundary************************************************
     if(Gamma[n][1] == 0.0)//Ni[n][I+1] = Ni[n][I];
+    {
         al_bound[1] = 1.0;
+
+        Ni[LEN+1] = Ni[LEN];
+    }
     else//equation for DDT with kinetic wall flux
     {
         D = 0.5*(Di[LEN+1]+Di[LEN]);
@@ -224,7 +234,9 @@ void Transport_boundary(int n,double *Di,double *Mui,double *Tgas,double *E)
         Pe = Vd*0.5*(l[LEN+2]-l[LEN])/D;
         Vt = sqrt(8*kb*Tgas[LEN+1]/(pi*Mi[n]));
 
-        al_bound[1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);
+        al_bound[1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);//al_bound=Ni[LEN]/Ni[LEN+1]
+
+        Ni[LEN+1] = Ni[LEN]/al_bound[1];
     }
 
 }
