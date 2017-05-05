@@ -880,12 +880,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 {
 	int i,n,j,l;
 	double al[4] = {0,dt/2,dt/2,dt};
-	double C0i[N],Ci[N];
+	double Ci[N];
 	double Rch[Nchem],Rch_rk[4][N];
 	double M,Res,Yi;
-
-	//for(n=0;n<N;n++)
-        //C0i[n] = *(Ni+n*(LEN+2));
 
 	//**********************расчёт по явной схеме(Рунге-Кутта_4)**************************
 	for(i=0;i<4;i++)
@@ -894,13 +891,9 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 		for(n=0;n<N;n++)
 		{
 			if(i==0)
-				//Ci[n] = Ni[n*(LEN+2)];
 				Ci[n] = *(Ni+n*(LEN+2));
-				//Ci[n] = C0i[n];
 			else
-				//Ci[n] = Ni[n*(LEN+2)]+al[i]*Rch_rk[i-1][n];
 				Ci[n] = *(Ni+n*(LEN+2))+al[i]*Rch_rk[i-1][n];
-				//Ci[n] = C0i[n]+al[i]*Rch_rk[i-1][n];
 		}
 
 		//вычисление скоростей химических реакций************************************************************
@@ -996,17 +989,10 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 	//обновление концентраций
 	for(n=0;n<N;n++)
 	{
-	    //Ni[n*(LEN+2)] += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
 	    *(Ni+n*(LEN+2)) += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
-	    //C0i[n] += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
-
-	    //if(C0i[n]<1.0e-30)
-            //C0i[n] = 0.0;
 
 	    if(*(Ni+n*(LEN+2))<1.0e-30)
             *(Ni+n*(LEN+2)) = 0.0;
-
-        //*(Ni+n*(LEN+2)) = C0i[n];
 	}
 
 	//Writing_Chem-Contributions******************************************************

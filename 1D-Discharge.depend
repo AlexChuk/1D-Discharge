@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1493739366 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
+1493980954 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.cpp
 	"1D_MainFun.h"
 
-1493739410 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.h
+1493980580 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1d_mainfun.h
 	<stdio.h>
 	<math.h>
 	<string.h>
@@ -29,7 +29,7 @@
 
 1491840554 c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\1dmesh.h
 
-1493718555 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
+1493981917 source:c:\users\user\desktop\discharge_models\1d-discharge_develop\1d-discharge\chemistry_calc.cpp
 	"1D_MainFun.h"
 	"Gas_calc.h"
 	"Chemistry_calc.h"

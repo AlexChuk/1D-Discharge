@@ -4,8 +4,7 @@ int main(void)
 {
     extern double   Ni[Nmax][LEN+2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
                     Ne[LEN+2][NEmax],Nel[LEN+2],Te[LEN+2],Tv[LEN+2],
-                    E[LEN+1],E_N[LEN+1],
-                    dTgas[LEN+2],dNel[LEN+2];
+                    E[LEN+1],E_N[LEN+1];
 
     extern double tau,dt;//dte;
     extern int N;
@@ -28,7 +27,8 @@ int main(void)
 	Nchem = chem_make_react(Nedf);
 	chem_read_react(Nchem,N);
 
-    double Kel[LEN+2][Nedf],Kch[LEN+2][Nchem],dTe[LEN+2];
+    double Kel[LEN+2][Nedf],Kch[LEN+2][Nchem];
+    double dTe[LEN+2],dTgas[LEN+2],dNel[LEN+2];
     double Di[N][LEN+2],Mui[N][LEN+2];
 
 	Nt = int(tau/dt);
@@ -50,7 +50,7 @@ int main(void)
 
             if((dTgas[i]>10.0) || (dTe[i]>0.1) || (nt==0) || (dot==Ndots))
                 chem_const(&Kch[i][0],&Kel[i][0],Nchem,N,Te[i],Tgas[i],tic);
-            chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt/2.0,tic,dot);
+            chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,dt/2.0,tic,dot);//dt/2.0
         }
 
         /*for(n=0;n<N;n++)
@@ -64,11 +64,8 @@ int main(void)
         HeatTransport_SWEEPsolve(&Ni[0][0],N,Ngas,Tgas,dt/2.0,tic);
         */
 
-        /*for(i=1;i<=LEN;i++)
-        {
+        for(i=1;i<=LEN;i++)
             gas_TP_calc(&Ni[0][i],N,&Pgas[i],&Tgas[i],&dTgas[i],&Ngas[i],&Rogas[i],&Hgas[i],&Nel[i],&dNel[i],&Tv[i]);
-            gas_TimePrint(&Ni[0][i],N,Pgas[i],Tgas[i],Ngas[i],Nel[i],Te[i],Tv[i],E[i],dt);
-        }*/
 
         tic += dt;
 
