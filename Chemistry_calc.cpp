@@ -922,7 +922,7 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 		}
 
 		//Коэф-ты к правой части реакций(necessary processes)************************************************
-		int Num1,m,nR;
+		int Num1,m,nR=0;
 		for(n=0;n<N;n++)
 		{
 			Num1 = Chem[n][Nchem];
@@ -934,47 +934,44 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 			}
 
 			//Вычисление долей и скоростей реакций для компонент газа***************************************
-			for(nR=0;nR<NR;nR++)
-			{
-				if(((!strcmp(Spec[n],Spec_R[nR]) && (i==0))) && (dot==Ndots))
-				{
-					int Jr=0,Jc=0;
-					double SR_rise = 0, SR_cons = 0;
-					double Ss;
-					for(j=0;j<Num1;j++)
-					{
-						m = Chem[n][j];
+			if((i==0) && (dot==Ndots) && (!strcmp(Spec[n],Spec_R[nR])) && (nR<NR))
+            {
+                int Jr=0,Jc=0;
+                double SR_rise = 0, SR_cons = 0;
+                double Ss;
+                for(j=0;j<Num1;j++)
+                {
+                    m = Chem[n][j];
 
-						Ss = ChM[n][m]*Rch[m];
+                    Ss = ChM[n][m]*Rch[m];
 
-						if(ChM[n][m]<0)
-						{
-							RC[nR][Jc] = fabs(Ss);
+                    if(ChM[n][m]<0)
+                    {
+                        RC[nR][Jc] = fabs(Ss);
 
-							Jc += 1;
-							SR_cons += fabs(Ss);
-						}
-						else
-						{
-							RR[nR][Jr] = Ss;
+                        Jc += 1;
+                        SR_cons += fabs(Ss);
+                    }
+                    else
+                    {
+                        RR[nR][Jr] = Ss;
 
-							Jr += 1;
-							SR_rise += Ss;
-						}
-					}
-					RR[nR][Jr] = SR_rise;
-					RC[nR][Jc] = SR_cons;
+                        Jr += 1;
+                        SR_rise += Ss;
+                    }
+                }
+                RR[nR][Jr] = SR_rise;
+                RC[nR][Jc] = SR_cons;
 
-					for(j=0;j<Jr;j++)
-						RRp[nR][j] = RR[nR][j]*100/SR_rise;//в процентах
-                    RRp[nR][Jr] = SR_rise;
+                for(j=0;j<Jr;j++)
+                    RRp[nR][j] = RR[nR][j]*100/SR_rise;//в процентах
+                RRp[nR][Jr] = SR_rise;
 
-					for(j=0;j<Jc;j++)
-						RCp[nR][j] = RC[nR][j]*100/SR_cons;//в процентах
-                    RCp[nR][Jc] = SR_cons;
+                for(j=0;j<Jc;j++)
+                    RCp[nR][j] = RC[nR][j]*100/SR_cons;//в процентах
+                RCp[nR][Jc] = SR_cons;
 
-					break;
-				}
+                nR++;
 			}
 
 			/*учёт гетерогенной гибели**********************************************************************

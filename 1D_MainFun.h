@@ -15,7 +15,7 @@
 #ifndef MAINFUN_H
 #define MAINFUN_H
 
-# define LEN 5  //dots per axis
+# define LEN 2  //dots per axis
 # define NEmax 1000
 # define Nmax 100
 # define CSmax 100
@@ -27,7 +27,7 @@ const double
 	ma = 1.67e-24,//[ד]
 	me = 9.1e-28,//[ד]
 	e = 4.8e-10,//[ÑÃÑ]
-	E0 = 300,//E[Â/סל]=300E[אבס.ÑÃÑ]
+	Eabs = 300,//E[Â/סל]=300E[אבס.ÑÃÑ]
 	Na = 6.022e+23,
 	kb = 1.38e-16,
 	eV_K = 11605,//1 ‎Â ג ךוכüגטםאץ Ê

@@ -74,7 +74,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	Tn = Tin;//300;
 	Nn = Nin;
 	Tnn = Tin;
-	do
+	/*do
 	{
 		if(!Tnn==0)
 		{
@@ -100,7 +100,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 
 		dT = fabs(Tnn-Tn);
 
-	}while(dT>0.01);
+	}while(dT>0.005);*/
 	Tout = Tnn;//Tin//300;
 
 	//Isobaric process**************************************
@@ -206,7 +206,7 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
 
     fprintf(log,"E/N,Td\t");
     for(i=0;i<LEN+2;i++)
-        fprintf(log,"%.1lf\t",E[i]*1.0e17*E0/Ngas[i]);
+        fprintf(log,"%.1lf\t",E[i]*1.0e17*Eabs/Ngas[i]);
     fprintf(log,"\n");
 
     fprintf(log,"Te,eV\t");
@@ -265,7 +265,7 @@ void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double N
         log = fopen("Gas_TimeData.txt", "a+");
 
 
-    fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*E0/Ngas,Ngas,Nel/Ngas);
+    fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*Eabs/Ngas,Ngas,Nel/Ngas);
     for(n=0;n<=11;n++)
         fprintf(log,"%.2e\t",*(Ni+n*(LEN+2)));
     fprintf(log,"\n");

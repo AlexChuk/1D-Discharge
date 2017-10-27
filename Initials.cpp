@@ -5,7 +5,7 @@ double Ne[LEN+2][NEmax],Ni[Nmax][LEN+2],Mi[Nmax],LJi[Nmax][2],Pgas[LEN+2],Tgas[L
 double Nel[LEN+2],Te[LEN+2],Tv[LEN+2];
 double Gamma[Nmax][2];
 double E[LEN+2],Fi[LEN+2];
-double Tinit,Pinit,Xinit[Nmax],E_N;
+double Tinit,Pinit,Xinit[Nmax],E_Ninit;
 double dTgas,dTe,dNel;
 double Len,Tw,Lam;
 double tau,dt;
@@ -42,7 +42,7 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%d%s",&Ndots,&Cmt);
 	fscanf(init,"%lf%s",&Pinit,&Cmt);
 	fscanf(init,"%lf%s",&Tinit,&Cmt);
-	fscanf(init,"%lf%s",&E_N,&Cmt);
+	fscanf(init,"%lf%s",&E_Ninit,&Cmt);
 	fscanf(init,"%lf%s",&Emax,&Cmt);//считывание максимума энергетич шкалы
 	fscanf(init,"%lf%s",&Len,&Cmt);
 	fscanf(init,"%lf%s",&Tw,&Cmt);
@@ -95,7 +95,8 @@ void init_data()//задание начальных условий
 	for(i=0;i<=LEN+1;i++)
     {
         Pgas[i] = Pinit*p0; //Torr
-        Tgas[i] = Tinit;
+        //Tgas[i] = Tinit;
+        Tgas[i] = Tinit-i*i*(Tinit-Tw)/(LEN+1)/(LEN+1);
 
         Ngas[i] = Pgas[i]/(kb*Tgas[i]);
         Hgas[i] = 0.0;
@@ -114,8 +115,9 @@ void init_data()//задание начальных условий
 	//ѕотенциал электрического пол€***********************************
 	for(i=0;i<=LEN+1;i++)
     {
-        E[i] = E_N*Ngas[i]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
-        E[i] = E[i]/E0;//E[¬/см] = E0*E[abs]
+        //E[i] = E_Ninit*Ngas[i]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+        E[i] = E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+        E[i] = E[i]/Eabs;//E[¬/см] = E0*E[abs]
     }
 
     /*for(i=0;i<=LEN+1;i++)
@@ -151,6 +153,8 @@ void init_print()//запись начальных данных
 	printf("E/N = %.1f[Td]\tXe = %.2e\tTe = %.1f[eV]\n",E[1]/Ngas[1],Nel[1]/Ngas[1],Te[1]);
 	printf("P = %.1f[Torr]\tT = %.1f[K]\t[%s] = %.2e\n",Pgas[1]/p0,Tgas[1],Spec[5],Ni[5][1]);
 	printf("\n%s\n\n",symb);
+
+	//File_rewriting**************************************************
 
     FILE *log;
     log = fopen("Gas_data.txt", "w");
