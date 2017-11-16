@@ -40,10 +40,10 @@ void gas_HCpSi_calc(double Tgas,int N)//нахождение внутренней энергии,энтальпии 
 		HCpSi[2][n] = Si;//[эрг/г*К]
 	}
 }
-void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double *Ngas,double *Rogas,double *Hgas,double *Nel,double *dNel,double *Tv)//расчёт температуры газа((H,P)-const)
+void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double *Ngas,double *Rogas,double *Hgas,double *Nel,double *dNel,double *Tv,double Ez,double *dEzN)//расчёт температуры газа((H,P)-const)
 {
 	int n;
-	double Xi[N],Nin,Roin,Tin,Pin,Hin,XMi,Xmi[N];
+	double Xi[N],Nin,Roin,Tin,Pin,Hin,XMi,Xmi[N],hin;
 	double Nout,Pout,Tout,Roout,Hout;
     double Hi,Cpi;
 	double ftn,Ftn,Tnn,Tn,dT,Nn;
@@ -73,13 +73,14 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
     //Расчёт температуры_методом Ньютона
 	Tn = Tin;//300;
 	Nn = Nin;
+	hin = Hin/Nin;
 	Tnn = Tin;
-	/*do
+	do
 	{
 		if(!Tnn==0)
 		{
             Tn = Tnn;
-			Nn = Nin*Tin/Tn;//Pin/(kb*Tn);
+			//Nn = Nin*Tin/Tn;//Pin/(kb*Tn);
 		}
 
 		Ftn = 0;
@@ -94,13 +95,15 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 			ftn += Xmi[n]*Cpi;//Roi1[n]*Cpi;//Xi[n]*Cpi;//
 		}
 
-		Ftn = Ftn*Nn - Hin;
+		//Ftn = Ftn*Nn - Hin;
+		Ftn = Ftn - hin;
 
-		Tnn = Tn - Ftn/(ftn*Nn);
+		//Tnn = Tn - Ftn/(ftn*Nn);
+		Tnn = Tn - Ftn/ftn;
 
 		dT = fabs(Tnn-Tn);
 
-	}while(dT>0.005);*/
+	}while(dT>0.001);//0.001
 	Tout = Tnn;//Tin//300;
 
 	//Isobaric process**************************************
@@ -108,6 +111,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 
 	//Return to using variables:
 	Nout = Pout/(kb*Tout);
+	//Nout = Nin;
     Roout = XMi*Nout;
 
 	gas_HCpSi_calc(Tout,N);
@@ -115,6 +119,7 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
 	for(n=1;n<N;n++)
 		Hout += Xmi[n]*HCpSi[0][n];//[эрг/cm^3]
     Hout *= Nout;
+    //Hout = Hin;//*Nout/Nin;
 
 	//Return to using variables:
 	*Pgas = Pout;
@@ -140,9 +145,10 @@ void gas_TP_calc(double *Ni,int N,double *Pgas,double *Tgas,double *dTgas,double
     n=11;
     *Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log((*(Ni+n*(LEN+2)))/(*(Ni+(n+1)*(LEN+2))));//*Tv = fabs(HCpSi[0][n+1]-HCpSi[0][n])*Mi[n]/kb/log(Ni[n*(LEN+2)]/Ni[(n+1)*(LEN+2)]);
 
+    *dEzN = Ez*(1/Nout-1/Nin)*1e17*Eabs;//[Td]
 	//************************************************************
 }
-void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double *E,double *Ne,double tic)//запись в файл
+void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double E,double *Jel,double Icalc,double *Ne,double tic)//запись в файл
 {
 	int i,k,n;
 	FILE *log;
@@ -151,7 +157,7 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
 	i = 1;
 	printf("Time = %.2e[s]\n",tic);
 	printf("Point - l[%d] = %.2lf\n",i,l[i]);
-	printf("P = %.1lf[Torr]\tT = %.1lf[K]\tXe = %.2e\t[%s] = %.2e[cm-3]\n",Pgas[i]/p0,Tgas[i],Nel[i]/Ngas[i],Spec[5],Ni[5*(LEN+2)+i]);
+	printf("I = %.2lf[mA]\tP = %.1lf[Torr]\tT = %.1lf[K]\tXe = %.2e\t%s = %.2e[cm-3]\n",Icalc*1e3,Pgas[i]/p0,Tgas[i],Nel[i]/Ngas[i],Spec[5],Ni[5*(LEN+2)+i]);
 
     //запись параметров газа*******************************************************************
 	log = fopen("Gas_data.txt", "a+");
@@ -190,9 +196,9 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
     fprintf(log,"\n");
 
     //Ni[n]
-    for(n=0;n<=21;n++)
+    for(n=0;n<=15;n++)
     {
-        fprintf(log,"%s,cm-3\t",Spec[n]);
+        fprintf(log,"%s\t",Spec[n]);//,cm-3
         for(i=0;i<LEN+2;i++)
             fprintf(log,"%.2e\t",Ni[n*(LEN+2)+i]);//(LEN+2) - due to 2 additional virtual points
         fprintf(log,"\n");
@@ -206,7 +212,17 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
 
     fprintf(log,"E/N,Td\t");
     for(i=0;i<LEN+2;i++)
-        fprintf(log,"%.1lf\t",E[i]*1.0e17*Eabs/Ngas[i]);
+        fprintf(log,"%.1lf\t",E*1.0e17*Eabs/Ngas[i]);
+    fprintf(log,"\n");
+
+    fprintf(log,"Jel,A/cm2\t");
+    for(i=0;i<LEN+2;i++)
+        fprintf(log,"%.2e\t",Jel[i]*eKl/e);
+    fprintf(log,"\n");
+
+    fprintf(log,"Iel,mA\t");
+    for(i=0;i<LEN+2;i++)
+        fprintf(log,"%.1lf\t",Icalc*1e3);
     fprintf(log,"\n");
 
     fprintf(log,"Te,eV\t");
@@ -247,7 +263,7 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
 
 	fclose(log);
 }
-void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double Nel,double Te,double Tv,double E,double tic)//запись в файл
+void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double Nel,double Te,double Tv,double E,double Jel,double Icalc,double tic)//запись в файл
 {
     int i,k,n;
 	FILE *log;
@@ -256,8 +272,8 @@ void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double N
     {
         log = fopen("Gas_TimeData.txt", "w");
 
-        fprintf(log,"t,s\tPgas,Torr\tTgas,K\tTv,[K]\tTe,[K]\tE/N,Td\tNgas,[cm-3]\tXel\t");
-        for(n=0;n<=11;n++)
+        fprintf(log,"t,s\tPgas,Torr\tTgas,K\tTv,[K]\tTe,[K]\tE/N,Td\tJel,[A/cm2]\tIel,[mA]\tNgas,[cm-3]\tXel\t");
+        for(n=0;n<=15;n++)
             fprintf(log,"%s\t",Spec[n]);
         fprintf(log,"\n");
     }
@@ -265,11 +281,12 @@ void gas_TimePrint(double *Ni,int N,double Pgas,double Tgas,double Ngas,double N
         log = fopen("Gas_TimeData.txt", "a+");
 
 
-    fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*Eabs/Ngas,Ngas,Nel/Ngas);
-    for(n=0;n<=11;n++)
+    fprintf(log,"%.2e\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.1lf\t%.2e\t%.1lf\t%.2e\t%.2e\t",tic,Pgas/p0,Tgas,Tv,Te*eV_K,E*1.0e17*Eabs/Ngas,Jel*eKl/e,Icalc*1e3,Ngas,Nel/Ngas);
+    for(n=0;n<=15;n++)
         fprintf(log,"%.2e\t",*(Ni+n*(LEN+2)));
     fprintf(log,"\n");
 
 	fclose(log);
 }
+
 

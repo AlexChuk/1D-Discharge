@@ -4,10 +4,10 @@
 double Ne[LEN+2][NEmax],Ni[Nmax][LEN+2],Mi[Nmax],LJi[Nmax][2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2];
 double Nel[LEN+2],Te[LEN+2],Tv[LEN+2];
 double Gamma[Nmax][2];
-double E[LEN+2],Fi[LEN+2];
+double Ez,Er[LEN+1],Fi[LEN+2],Iexp;
 double Tinit,Pinit,Xinit[Nmax],E_Ninit;
 double dTgas,dTe,dNel;
-double Len,Tw,Lam;
+double Len,Hght,Tw;
 double tau,dt;
 double Emax,dE,dEev;
 int v0,vlen;
@@ -15,7 +15,7 @@ double V0,Vlen;
 
 int N,NR,Nt,Nte,Ndots;
 char Spec[Nmax][10],Spec_R[Nmax][10],GeomVect[10];
-char Geom[10];
+char Geom[20];
 double CXi[Nmax][2][8];
 
 void init_read()//считывание начальных данных
@@ -43,8 +43,10 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%lf%s",&Pinit,&Cmt);
 	fscanf(init,"%lf%s",&Tinit,&Cmt);
 	fscanf(init,"%lf%s",&E_Ninit,&Cmt);
+	fscanf(init,"%lf%s",&Iexp,&Cmt);
 	fscanf(init,"%lf%s",&Emax,&Cmt);//считывание максимума энергетич шкалы
 	fscanf(init,"%lf%s",&Len,&Cmt);
+	fscanf(init,"%lf%s",&Hght,&Cmt);
 	fscanf(init,"%lf%s",&Tw,&Cmt);
 
 	fscanf(init,"%s%s",&Geom,&Cmt);
@@ -89,7 +91,7 @@ void init_data()//задание начальных условий
 {
 	int i,n,k;
 
-	gas_HCpSi_calc(Tinit,N);
+	//gas_HCpSi_calc(Tinit,N);
 
 	//√азовые компоненты**********************************************
 	for(i=0;i<=LEN+1;i++)
@@ -97,6 +99,8 @@ void init_data()//задание начальных условий
         Pgas[i] = Pinit*p0; //Torr
         //Tgas[i] = Tinit;
         Tgas[i] = Tinit-i*i*(Tinit-Tw)/(LEN+1)/(LEN+1);
+
+        gas_HCpSi_calc(Tgas[i],N);
 
         Ngas[i] = Pgas[i]/(kb*Tgas[i]);
         Hgas[i] = 0.0;
@@ -113,11 +117,16 @@ void init_data()//задание начальных условий
 	//****************************************************************
 
 	//ѕотенциал электрического пол€***********************************
-	for(i=0;i<=LEN+1;i++)
+
+	Iexp = Iexp;//[Amper]
+    Ez = E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+    Ez = Ez/Eabs;//E=E[B/cm]/E[abs]
+
+	for(i=0;i<=LEN;i++)
     {
         //E[i] = E_Ninit*Ngas[i]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
-        E[i] = E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
-        E[i] = E[i]/Eabs;//E[¬/см] = E0*E[abs]
+        Er[i] = 0.0;//E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+        Er[i] = Er[i]/Eabs;//E=E[B/cm]/E[abs]
     }
 
     /*for(i=0;i<=LEN+1;i++)
@@ -128,7 +137,7 @@ void init_data()//задание начальных условий
 	//Ќачальна€ EEDF**************************************************
     for(i=0;i<=LEN+1;i++)
     {
-        Te[i] = 2.0;
+        Te[i] = 0.05;
         for(k=0;k<=NEmax-1;k++)
         {
             Ne[i][k] = 2*Nel[i]*pow((k+0.5)*dEev/(Te[i]*Te[i]*Te[i]*pi),0.5)*exp(-(k+0.5)*dEev/Te[i]);//Maxwell
@@ -150,8 +159,8 @@ void init_print()//запись начальных данных
 
 	printf("%s\nInitial Data:\n\n",symb);
 	printf("t = %.2lf[s]\n",0.0);
-	printf("E/N = %.1f[Td]\tXe = %.2e\tTe = %.1f[eV]\n",E[1]/Ngas[1],Nel[1]/Ngas[1],Te[1]);
-	printf("P = %.1f[Torr]\tT = %.1f[K]\t[%s] = %.2e\n",Pgas[1]/p0,Tgas[1],Spec[5],Ni[5][1]);
+	printf("I = %.2lf[A]\tE/N = %.1f[Td]\tXe = %.2e\tTe = %.1f[eV]\n",Iexp,Ez/Ngas[1],Nel[1]/Ngas[1],Te[1]);
+	printf("P = %.1f[Torr]\tT = %.1f[K]\t%s = %.2e\n",Pgas[1]/p0,Tgas[1],Spec[5],Ni[5][1]);
 	printf("\n%s\n\n",symb);
 
 	//File_rewriting**************************************************

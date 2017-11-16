@@ -1,9 +1,8 @@
 # include "1D_MainFun.h"
 # include "1DTransport.h"
+# include "Gas_calc.h"
 
 double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
-double Di[LEN+2],Mui[LEN+2];
-//double Vi[LEN+1],Si[LEN+2];
 double al_bound[2];
 int Gf = 0;
 
@@ -23,7 +22,7 @@ void Transport_GFcalc(char *Geom)
     double lC,lR,lL; //координаты центров ячеек
     double dlC,dlR,dlL; //разности граней [i]-й ячейки, между центрами ячеек слева ([i-1] и [i]) и справа ([i] и [i+1])
 
-    if(!strcmp(Geom,"radial"))
+    if(!strcmp(Geom,"axial"))//"radial"
     {
         for(i=1;i<LEN+1;i++)
         {
@@ -41,7 +40,7 @@ void Transport_GFcalc(char *Geom)
         }
 
     }
-    else if(!strcmp(Geom,"axis"))
+    else if(!strcmp(Geom,"cartesian"))
     {
         for(i=1;i<LEN+1;i++)
         {
@@ -60,22 +59,60 @@ void Transport_GFcalc(char *Geom)
     }
 
 }
-void Trasport_coefs_calc(int n,double *Ni,double *Di,double *Mui)
+void Trasport_coefs_calc(int N,double *Ni,double *Del,double *Muel,double *Di,double *Mui,double *Lam,double *Pgas,double *Tgas,double *Te)
 {
-    for(int i=0;i<LEN+2;i++)
-    {
-        if(n==0)
-        {
-            Di[i] = 1000.0;
-            Mui[i] = 1.0;
-        }
-        else
-        {
-            Di[i] = 300.0;
-            Mui[i] = 1.0;//e/me/Vm_av;
-        }
+    double Damb[LEN+2],PTi,PTn;
+    PTi = 760*p0/(300*300);
+    PTn = 760*p0/pow(300,1.5);
 
-        //from EEDF_calc;
+    for(int n=0;n<N;n++)
+    {
+        for(int i=0;i<LEN+2;i++)
+        {
+            /*if(n==0)
+            {
+                Di[n*(LEN+2)+i] = 0.001*Del[i];
+                Mui[n*(LEN+2)+i] = 0.0;//1e-5*Muel[i];//1.0;//e/me/Vm_av;
+
+            }*/
+            //Ambipolar_Case:**********************************************
+            if(n==0)
+                Damb[i] = 0.0;
+            else if(n<=3)
+            {
+                if(n==1 || n==3)
+                    Di[n*(LEN+2)+i] = 0.07;///[cm2/s]--из справочника "Физ.Величины"_стр.433
+                if(n==2)
+                    Di[n*(LEN+2)+i] = 0.058;///[cm2/s]--из справочника "Физ.Величины"_стр.433
+                //if()
+                    //Di[n*(LEN+2)+i] *= Ni[n*(LEN+2)+i]/Ni[i];
+                Damb[i] += Di[n*(LEN+2)+i];
+
+                if(n==3)
+                {
+                    Damb[i] *= PTi*Tgas[i]*Tgas[i]/Pgas[i]*(1.0+Te[i]*eV_K/Tgas[i]);
+                    for(int k=0;k<=n;k++)
+                        Di[k*(LEN+2)+i] = Damb[i]/n;
+                }
+
+                Mui[n*(LEN+2)+i] = 0.0;//1e-5*Muel[i];//1.0;//e/me/Vm_av;
+            }
+            else
+            {
+                if(n>=8 && n<=10)
+                    Di[n*(LEN+2)+i] = 0.06;///[N,N(2D),N(2P)]_MankModel-data
+                else
+                Di[n*(LEN+2)+i] = 0.028;///[N2...]_[cm2/s]_MankModel-data
+
+                Di[n*(LEN+2)+i] *= PTn*pow(Tgas[i],1.5)/Pgas[i];
+
+                Mui[n*(LEN+2)+i] = 0.0;//1.0;//e/me/Vm_av;
+            }
+
+            ///Lam = 1.0e+7*(2.714+5.897e-3*Tin)*1.0e-4; //[Эрг/(с*см^2*K)]Ref. - Nuttall_JRNBS_1957 (N2)
+            if(n==N-1)
+                Lam[i] = 1.0e+7*(2.714+5.897e-3*Tgas[i])*1.0e-4;
+        }
     }
 }
 double* Transport_SWEEPsolve(double *NNi,double *Di,double *Vi,double *Si,double dt)
@@ -159,17 +196,19 @@ double* Transport_SWEEPsolve(double *NNi,double *Di,double *Vi,double *Si,double
         dL = 0.5*(l[i+2]-l[i]);
         Pe = fabs(V_R*dL/D_R);
         fPe = pow((1.0-0.1*Pe),5.0);
-        A_R = D_R*std::max(0.0,fPe)+std::max(-V_R,0.0);
+        //A_R = D_R*std::max(0.0,fPe)+std::max(-V_R,0.0);
+        A_R = D_R*fmax(0.0,fPe)+fmax(-V_R,0.0);
 
         //left-edge
         dL = 0.5*(l[i+1]-l[i-1]);
         Pe = fabs(V_L*dL/D_L);
         fPe = pow((1.0-0.1*Pe),5.0);
-        A_L = D_L*std::max(0.0,fPe)+std::max(V_L,0.0);
+        //A_L = D_L*std::max(0.0,fPe)+std::max(V_L,0.0);
+        A_L = D_L*fmax(0.0,fPe)+fmax(V_L,0.0);
 
         //Accounting for Geometry Factors:
         A_R = A_R*GF_R[i];
-        A_L = A_R*GF_L[i];
+        A_L = A_L*GF_L[i];
         A_C = A_R+A_L+GF_R[i]*V_R-GF_L[i]*V_L;
 
         //SWEEP Coefficients:
@@ -178,7 +217,7 @@ double* Transport_SWEEPsolve(double *NNi,double *Di,double *Vi,double *Si,double
         C = A_C+1.0/dt;//[i](center_cell)
         F = NNi[i]*1.0/dt;//+ Rchem[i];//RHS-part
 
-        if(i==1)//see Transport_boundary();
+        if(i==1)//see SpecTransport();
         {
             al[i-1] = al_bound[0];
             bet[i-1] = 0.0;
@@ -188,7 +227,7 @@ double* Transport_SWEEPsolve(double *NNi,double *Di,double *Vi,double *Si,double
         al[i] = -B*den;
         bet[i] = (F-A*bet[i-1])*den;
 
-        if(i==LEN)//see Transport_boundary();]
+        if(i==LEN)//see SpecTransport();
         {
             al[i] = al_bound[1];
             bet[i] = 0.0;
@@ -206,7 +245,7 @@ double* Transport_SWEEPsolve(double *NNi,double *Di,double *Vi,double *Si,double
 
     return &NNi[0];
 }
-void SpecTransport(int n,double *Ni,double *Di,double *Mui,double *Ngas,double *Tgas,double *E,double dt)
+void SpecTransport(int n,double *Ni,double *Di,double *Mui,double *Ngas,double *Tgas,double *Te,double E,double dt)
 {
 	/*
                 left wall                                                               right wall
@@ -233,12 +272,19 @@ void SpecTransport(int n,double *Ni,double *Di,double *Mui,double *Ngas,double *
     else//equation for DDT with kinetic wall flux
     {
         D = 0.5*(Di[1]+Di[0]);
-        Vd = 0.5*(Mui[1]+Mui[0])*E[0];
 
-        Pe = Vd*0.5*(l[2]-l[0])/D;
-        Vt = sqrt(8*kb*Tgas[0]/(pi*Mi[n]));
+        if(n==0)
+            Vt = sqrt(8*kb*Te[0]*eV_K/(pi*Mi[n]));
+        else
+            Vt = sqrt(8*kb*Tgas[0]/(pi*Mi[n]));
 
-        al_bound[0] = (1.0+0.25*Gamma[n][0]*Pe*Vt/Vd)/(1.0+Pe);
+        ///if(Vd!=0)
+        ///Vd = 0.5*(Mui[1]+Mui[0])*E;
+        ///Pe = Vd*0.5*(l[2]-l[0])/D;
+        ///al_bound[0] = (1.0+0.25*Gamma[n][0]*Pe*Vt/Vd)/(1.0+Pe);
+
+        Pe = 0.5*(l[2]-l[0])/D;
+        al_bound[0] = (1.0+0.25*Gamma[n][0]*Vt*Pe);
 
         Ni[0] = Ni[1]/al_bound[0];
     }
@@ -253,12 +299,19 @@ void SpecTransport(int n,double *Ni,double *Di,double *Mui,double *Ngas,double *
     else//equation for DDT with kinetic wall flux
     {
         D = 0.5*(Di[LEN+1]+Di[LEN]);
-        Vd = 0.5*(Mui[LEN]+Mui[LEN+1])*E[LEN];
 
-        Pe = Vd*0.5*(l[LEN+2]-l[LEN])/D;
-        Vt = sqrt(8*kb*Tgas[LEN+1]/(pi*Mi[n]));
+        if(n==0)
+            Vt = sqrt(8*kb*Te[LEN+1]*eV_K/(pi*Mi[n]));
+        else
+            Vt = sqrt(8*kb*Tgas[LEN+1]/(pi*Mi[n]));
 
-        al_bound[1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);//al_bound=Ni[LEN]/Ni[LEN+1]
+        ///if(Vd!=0)
+        ///Vd = 0.5*(Mui[LEN]+Mui[LEN+1])*E;
+        ///Pe = Vd*0.5*(l[LEN+2]-l[LEN])/D;
+        ///al_bound[1] = (1.0+0.25*Gamma[n][1]*Pe*Vt/Vd)/(1.0+Pe);//al_bound=Ni[LEN]/Ni[LEN+1]
+
+        Pe = 0.5*(l[LEN+2]-l[LEN])/D;
+        al_bound[1] = (1.0+0.25*Gamma[n][1]*Vt*Pe);//al_bound=Ni[LEN]/Ni[LEN+1]
 
         Ni[LEN+1] = Ni[LEN]/al_bound[1];
     }
@@ -285,10 +338,8 @@ void SpecTransport(int n,double *Ni,double *Di,double *Mui,double *Ngas,double *
     for(i=1;i<=LEN;i++)
         Ni[i] = *(res+i);
 }
-void HeatTransport(double *Ne,double *Te,double *E,double dt)
+void HeatTransport(double *Hgas,double *Tgas,double *Lam,double *Ni,double *Di,int N,double E,double *J,double Twall,double dt)
 {
-    double Lam,Hin;
-
     //Сетка по длине:
 	/*
                 left wall                                                               right wall
@@ -304,14 +355,63 @@ void HeatTransport(double *Ne,double *Te,double *E,double dt)
     //Lam = 1.0e+7*(2.714+5.897e-3*Tin)*1.0e-4; //[Эрг/(с*см^2*K)]Ref. - Nuttall_JRNBS_1957 (N2)
     //Hin += (Qel)*dt - Lam*(Tin-Tw)/pow(Rad/2.4,2.0)*dt;//w/o QE
 
+    double  Lm,QL,QR,JHL,JHR,Wrad,T0,Dn;
+    int i,n;
+
     //Boundary_conditions*****************************************
 
-    //Defining_Drift-coefficient and Source_term******************
+    //left_boundary***********************************************
+    if(!strcmp(Geom,"axial"))
+        Tgas[0] = Tgas[1];
+    else if(!strcmp(Geom,"cartesian"))
+        Tgas[0] = Twall;
 
+    //right_boundary***********************************************
+    Tgas[LEN+1] = Twall;
 
-    //Transport_equation_solve************************************
-    //Transport_SWEEPsolve(T,Lam,V,Si,dt);
+    //Calculation_of_enthalpy*************************************
+    for(i=1;i<LEN+1;i++)
+    {
+        //Учет теплопроводности******************
 
+        QL = QR;
+        if(i==1)
+        {
+            Lm = 0.5*(Lam[i]+Lam[i-1]);
+            QL = - Lm*(Tgas[i]-Tgas[i-1]);
+        }
+        Lm = 0.5*(Lam[i+1]+Lam[i]);
+        QR = - Lm*(Tgas[i+1]-Tgas[i]);
+
+        //Учет диффузионного переноса************
+
+        JHL = JHR;
+        if(i==1)
+        {
+            T0 = (Tgas[i]+Tgas[i-1])*0.5;
+            gas_HCpSi_calc(T0,N);
+
+            JHL = 0.0;
+            for(n=1;n<N;n++)
+            {
+                Dn = 0.5*(Di[n*(LEN+2)+i]+Di[n*(LEN+2)+i-1]);
+                JHL += - HCpSi[0][n]*Dn*(Ni[n*(LEN+2)+i]-Ni[n*(LEN+2)+i-1]);
+            }
+        }
+        JHR = 0.0;
+        T0 = (Tgas[i+1]+Tgas[i])*0.5;
+        gas_HCpSi_calc(T0,N);
+        for(n=1;n<N;n++)
+        {
+            Dn = 0.5*(Di[n*(LEN+2)+i+1]+Di[n*(LEN+2)+i]);
+            JHR += - HCpSi[0][n]*Mi[n]*Dn*(Ni[n*(LEN+2)+i+1]-Ni[n*(LEN+2)+i]);
+        }
+
+        //Учет Радиационных потерь тепла*********
+        Wrad = 0.0;//
+
+        Hgas[i] += -dt*(GF_R[i]*(QR+JHR)-GF_L[i]*(QL+JHL))+dt*(J[i]*E-Wrad);///{J*E}=[erg/cm3/c]
+    }
 }
 void TeTransport(double *Ne,double *Te,double *Lel,double *Vel,double dt)
 {
@@ -364,6 +464,8 @@ void TeTransport(double *Ne,double *Te,double *Lel,double *Vel,double dt)
 
         Se[i] = 0.0;//(Jel[i]*E[i])-Ne*Sum(ki*Ni*dEei);
     }
+
+    //проверить_геометрические факторы в поправке для сноса!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     //Transport_equation_solve************************************
     double *res;

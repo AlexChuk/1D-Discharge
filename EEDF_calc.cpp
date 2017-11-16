@@ -6,7 +6,7 @@ extern double dte;
 int CStype;
 int CSref[Nmax][9][CSmax],CSR[CSmax][5];
 double CS[NEmax][CSmax],Ith[CSmax];
-double Ee,Vdr,Muel,Jel,Qel,QE;
+//double Ee,Vdr,Jel,Qel,QE;
 
 int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакций)
 {
@@ -455,13 +455,14 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	return jj;
 }
-void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,double Tgas,double Nel,double dte,double tic,int dot)//решение уравнения Больцмана
+void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,double Tgas,double Nel,double *De,double *Mue,double *Jel,double dte,double tic,int dot)//решение уравнения Больцмана
 {
 	int k,n,m,s,j,J,Jmax,nte;
     double Te0,Te1,Norm,E_kT;
+    double Ee,Vdr,De_Muel;
 
 	double A,B,C,F,den;
-	double Vm[NEmax],Vmi[NEmax],D[NEmax],Vm_av;
+	double Vm[NEmax],Vmi[NEmax],D[NEmax],Vm_av,Del,Muel;
 	double Ur,Ul,Dr,Dl,Vr,Vl;
 	double Ni[N];
 
@@ -505,7 +506,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
                         V = CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ni[n];//sqrt(2/me)=4.69e13
 
-                        Vm[k] += V;
+                        Vm[k] += V;//[1/s]
                         Vmi[k] += V/Mi[n];
                     }
                 }
@@ -714,7 +715,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
         nte++;
 
-    }while(fabs(Te1-Te0)>0.005);
+    }while(fabs(1.0-(Te1/Te0))>0.001);//(fabs(Te1-Te0)>0.001);
 
     //Apply_to_used_matrices******************************************
     *Te = Te1;
@@ -722,13 +723,29 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
     //Vdr-calculation*************************************************
 
-    Vm_av = 0.0;
+    /*Vm_av = 0.0;
     for(k=0;k<NEmax;k++)
         Vm_av += Vm[k]*Ne[k]*dEev;
     Vm_av *= 1.0/Nel;//
-    Muel = e/me/Vm_av;
-    //Vdr = Muel*E;
-    //Jel = e*Nel*Vdr;//[СГС/cm2*s]
+    Muel = e/(me*Vm_av);//[см2/(абс.СГС*с)]*/
+
+    Vm_av = 0.0;
+    for(k=0;k<NEmax;k++)
+        Vm_av += Ne[k]*dEev/Vm[k];
+    Vm_av *= 1.0/Nel;//
+    Muel = Vm_av*e/me;//[см2/(абс.СГС*с)]
+    *Mue = Muel;
+
+    Del = 0.0;
+    for(k=0;k<NEmax;k++)
+        Del += (k+0.5)*dE*Ne[k]*dEev/Vm[k];
+    Del *= 2.0/(me*3.0*Nel);
+    *De = Del;//[см2/с]
+
+    De_Muel = Del*Eabs/Muel;//[В]
+    Vdr = Muel*E;//[см/с]
+    *Jel = e*Nel*Vdr;//[Abs/cm2*s]
+
     //Qel = me/Mi[11]*Ee*Vm_av*Nel*1.602e-12;//[erg/cm3*s]
 
     //QE = E*Jel*3.14*pi*Rad*Rad; //[abs*СГС/s]
@@ -752,7 +769,7 @@ void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel,double tic
     {
         Ki = 0.0;
         for(k=0;k<NEmax;k++)//int(Ith[m])
-            Ki += CS[k][m+1]*sqrt(2/me*dE*(k+0.5))*Ne[k]*dEev;
+            Ki += CS[k][m+1]*sqrt(2.0/me*dE*(k+0.5))*Ne[k]*dEev;
         Kel[m] = Ki/Nel;
     }
 

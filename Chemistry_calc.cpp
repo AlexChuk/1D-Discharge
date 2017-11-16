@@ -613,7 +613,7 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 
 	fclose(log);
 }
-void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
+void chem_const(double *Kch,double *Kel,int Nedf,int Nchem,int N,double Tel,double Tch,double tic)// расчёт констант скоростей реакций
 {
 	int j,n,Sum;
 	double Kf;
@@ -622,10 +622,10 @@ void chem_const(double *Kch,double *Kel,int Nchem,int N,double Tel,double Tch,do
 	int xRev=0;//счётчик запуска счета констант реакций с ID - Rev
     Tel = Tel*eV_K;//[K]
 
-	for(j=0;j<Nchem;j++)
+	for(j=Nedf;j<Nchem;j++)
 	{
-		if(!strcmp(Rtype[j],"EEDF"))//
-			Kch[j] = Kel[j];
+		//if(!strcmp(Rtype[j],"EEDF"))//
+		//	Kch[j] = Kel[j];
 		if(!strcmp(Rtype[j],"Te"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T), k-[см^3/с], Ea-[K]
 		{
 			Kf = Kchi[j][0]*pow(Tel,Kchi[j][1])*exp(-Kchi[j][2]/Tel);
@@ -1045,7 +1045,7 @@ void chem_spec_contrib(int N,int Nchem,double tic)//вывод скоростей реакций для 
 		for(j=0;j<=Jc;j++)
 		{
 			//fprintf(rc,"%.2e\t",RC[nR][j]);
-			fprintf(rcp,"%.3f\t",RCp[nR][j]);
+			fprintf(rcp,"%.2e\t",RCp[nR][j]);
 		}
 		//fprintf(rc,"\n");
 		fprintf(rcp,"\n");

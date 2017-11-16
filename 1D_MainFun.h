@@ -2,7 +2,7 @@
 # include <math.h>
 # include <string.h>
 # include <stdlib.h>
-# include <algorithm>
+//# include <algorithm>
 
 # include "Initials.h"
 # include "1Dmesh.h"
@@ -15,7 +15,7 @@
 #ifndef MAINFUN_H
 #define MAINFUN_H
 
-# define LEN 2  //dots per axis
+# define LEN 10  //dots per axis
 # define NEmax 1000
 # define Nmax 100
 # define CSmax 100
@@ -27,6 +27,7 @@ const double
 	ma = 1.67e-24,//[ד]
 	me = 9.1e-28,//[ד]
 	e = 4.8e-10,//[ÑÃÑ]
+	eKl = 1.60217662e-19,//[Êכ]
 	Eabs = 300,//E[Â/סל]=300E[אבס.ÑÃÑ]
 	Na = 6.022e+23,
 	kb = 1.38e-16,
@@ -37,12 +38,11 @@ const double
 
 
 extern int NR,Ndots;//N,Nt,Nte,Nchem,Nedf,Ndots,
-extern char Spec[Nmax][10],Spec_R[Nmax][10],Geom[10];
+extern char Spec[Nmax][10],Spec_R[Nmax][10];
 extern double Mi[Nmax],HCpSi[3][Nmax],CXi[Nmax][2][8];
 extern double Emax,dE,dEev;
-extern char Geom[10];
-extern double Len;
-extern double l[LEN+3];
-extern double Gamma[Nmax][2];
+extern char Geom[20];
+extern double Len,l[LEN+3],Hght;
+extern double Gamma[Nmax][2],Tw;
 
 #endif
