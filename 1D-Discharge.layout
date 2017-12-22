@@ -2,24 +2,32 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="1DTransport.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Cross_N2_lxtype_Our-new.txt" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="323" topLine="0" />
+			<Cursor1 position="13" topLine="36" />
 		</Cursor>
 	</File>
-	<File name="Comps_N2.txt" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Chemistry_calc.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="239" topLine="3" />
+			<Cursor1 position="21642" topLine="45" />
+		</Cursor>
+		<Folding>
+			<Collapse line="17" />
+		</Folding>
+	</File>
+	<File name="Comps_N2.txt" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="559" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="1D_MainFun.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="N2_chemistry_new.txt" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="613" topLine="0" />
+			<Cursor1 position="5827" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="1D_MainFun.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="EEDF_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4862" topLine="59" />
+			<Cursor1 position="452" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="1Dmesh.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -27,40 +35,35 @@
 			<Cursor1 position="104" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Chemistry_calc.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Initials.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="16394" topLine="9" />
-		</Cursor>
-		<Folding>
-			<Collapse line="17" />
-			<Collapse line="202" />
-			<Collapse line="349" />
-		</Folding>
-	</File>
-	<File name="EEDF_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="452" topLine="0" />
+			<Cursor1 position="144" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Gas_calc.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Gas_calc.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2401" topLine="44" />
+			<Cursor1 position="2724" topLine="66" />
 		</Cursor>
 		<Folding>
 			<Collapse line="6" />
 		</Folding>
 	</File>
-	<File name="Chemistry_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="231" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="EEDF_calc.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="20948" topLine="303" />
+			<Cursor1 position="512" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="1DTransport.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="395" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="1D_MainFun.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1082" topLine="24" />
 		</Cursor>
 		<Folding>
-			<Collapse line="11" />
+			<Collapse line="96" />
 		</Folding>
 	</File>
 	<File name="GasPropDB.txt" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -73,34 +76,45 @@
 			<Cursor1 position="271" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Initials.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="1D_MainFun.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3291" topLine="0" />
-		</Cursor>
-		<Folding>
-			<Collapse line="21" />
-		</Folding>
-	</File>
-	<File name="Initials.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="144" topLine="0" />
+			<Cursor1 position="348" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="1DTransport.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="ReactionSet.txt" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2395" topLine="50" />
+			<Cursor1 position="5584" topLine="93" />
+		</Cursor>
+	</File>
+	<File name="1DTransport.cpp" open="1" top="1" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2743" topLine="18" />
 		</Cursor>
 		<Folding>
 			<Collapse line="9" />
-			<Collapse line="62" />
-			<Collapse line="94" />
-			<Collapse line="224" />
-			<Collapse line="393" />
 		</Folding>
+	</File>
+	<File name="Cross_N2_lxtype.txt" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1341" topLine="15" />
+		</Cursor>
 	</File>
 	<File name="1Dmesh.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="75" topLine="0" />
 		</Cursor>
+	</File>
+	<File name="Chemistry_calc.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="231" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Initials.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3288" topLine="30" />
+		</Cursor>
+		<Folding>
+			<Collapse line="21" />
+		</Folding>
 	</File>
 </CodeBlocks_layout_file>

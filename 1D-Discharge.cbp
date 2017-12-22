@@ -41,6 +41,8 @@
 		<Unit filename="Chemistry_calc.cpp" />
 		<Unit filename="Chemistry_calc.h" />
 		<Unit filename="Comps_N2.txt" />
+		<Unit filename="Cross_N2_lxtype-2.txt" />
+		<Unit filename="Cross_N2_lxtype.txt" />
 		<Unit filename="EEDF_calc.cpp" />
 		<Unit filename="EEDF_calc.h" />
 		<Unit filename="GasPropDB.txt" />
@@ -48,6 +50,9 @@
 		<Unit filename="Gas_calc.h" />
 		<Unit filename="Initials.cpp" />
 		<Unit filename="Initials.h" />
+		<Unit filename="N2_chemistry_new-2.txt" />
+		<Unit filename="N2_chemistry_new.txt" />
+		<Unit filename="ReactionSet.txt" />
 		<Extensions>
 			<code_completion />
 			<envvars />

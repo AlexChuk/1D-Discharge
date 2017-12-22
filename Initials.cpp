@@ -1,7 +1,7 @@
 # include "1D_MainFun.h"
 # include "Initials.h"
 
-double Ne[LEN+2][NEmax],Ni[Nmax][LEN+2],Mi[Nmax],LJi[Nmax][2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2];
+double Ne[LEN+2][NEmax],Xi[Nmax][LEN+2],Ni[Nmax][LEN+2],Mi[Nmax],LJi[Nmax][2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2];
 double Nel[LEN+2],Te[LEN+2],Tv[LEN+2];
 double Gamma[Nmax][2];
 double Ez,Er[LEN+1],Fi[LEN+2],Iexp;
@@ -15,7 +15,7 @@ double V0,Vlen;
 
 int N,NR,Nt,Nte,Ndots;
 char Spec[Nmax][10],Spec_R[Nmax][10],GeomVect[10];
-char Geom[20];
+char Geom[10],Start[10],FileStart[20];
 double CXi[Nmax][2][8];
 
 void init_read()//считывание начальных данных
@@ -50,6 +50,7 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%lf%s",&Tw,&Cmt);
 
 	fscanf(init,"%s%s",&Geom,&Cmt);
+	fscanf(init,"%s%s%s",&Start,&FileStart,&Cmt);
 	fscanf(init,"%d%lf%s",&v0,&V0,&Cmt);
 	fscanf(init,"%d%lf%s",&vlen,&Vlen,&Cmt);
 
@@ -87,18 +88,53 @@ void init_read()//считывание начальных данных
 	}
 	fclose(init);
 }
-void init_data()//задание начальных условий
+double init_data()//задание начальных условий
 {
-	int i,n,k;
+	int i,n,k,st;
+	double tic;
 
-	//gas_HCpSi_calc(Tinit,N);
+	if(!strcmp(Start,"saved"))
+    {
+        char Cmt[20];
+        FILE *save;
+
+        save = fopen(FileStart, "r");
+
+        //ѕарсинг_файла***************************************************
+
+        fscanf(save,"%s%lf",&Cmt,&tic);///Time
+        fscanf(save,"%s%lf",&Cmt,&Pinit);///Pressure_[Torr]
+        fscanf(save,"%s%lf",&Cmt,&Ez);///Field_[V/cm]
+
+        fscanf(save,"%s",&Cmt);///Temperature_[K]
+        for(i=0;i<=LEN+1;i++)
+            fscanf(save,"%lf",&Tgas[i]);
+
+        fscanf(save,"%s",&Cmt);///Electronic_Temperature_[eV]
+        for(i=0;i<=LEN+1;i++)
+            fscanf(save,"%lf",&Te[i]);
+
+        for(n=0;n<N;n++)///Ni_concentration_[cm-3]
+        {
+            fscanf(save,"%s",&Cmt);
+            for(i=0;i<=LEN+1;i++)
+                fscanf(save,"%lf",&Ni[n][i]);
+        }
+
+        fclose(save);
+
+        st = 1;
+    }
+    else
+        st = 0;
 
 	//√азовые компоненты**********************************************
 	for(i=0;i<=LEN+1;i++)
     {
         Pgas[i] = Pinit*p0; //Torr
-        //Tgas[i] = Tinit;
-        Tgas[i] = Tinit-i*i*(Tinit-Tw)/(LEN+1)/(LEN+1);
+
+        if(st==0)
+            Tgas[i] = Tinit-i*i*(Tinit-Tw)/(LEN+1)/(LEN+1);
 
         gas_HCpSi_calc(Tgas[i],N);
 
@@ -107,7 +143,14 @@ void init_data()//задание начальных условий
         Rogas[i] = 0.0;
         for(n=0;n<N;n++)
         {
-            Ni[n][i] = Xinit[n]*Ngas[i];
+            if(st==0)
+            {
+                Xi[n][i] = Xinit[n];
+                Ni[n][i] = Xinit[n]*Ngas[i];
+            }
+            else
+                Xi[n][i] = Ni[n][i]/Ngas[i];
+
             Rogas[i] += Ni[n][i]*Mi[n];
             if(n>=1)
                 Hgas[i] += HCpSi[0][n]*Ni[n][i]*Mi[n];//[эрг/cm^3]
@@ -118,8 +161,9 @@ void init_data()//задание начальных условий
 
 	//ѕотенциал электрического пол€***********************************
 
-	Iexp = Iexp;//[Amper]
-    Ez = E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
+	Iexp = 1.0e-3*Iexp;//[Amper]
+	if(st==0)
+        Ez = E_Ninit*Ngas[0]*1e-17;//E_N[Td] = E[B/cm]*1e17/Ngas[cm-3];
     Ez = Ez/Eabs;//E=E[B/cm]/E[abs]
 
 	for(i=0;i<=LEN;i++)
@@ -137,7 +181,8 @@ void init_data()//задание начальных условий
 	//Ќачальна€ EEDF**************************************************
     for(i=0;i<=LEN+1;i++)
     {
-        Te[i] = 0.05;
+        if(st==0)
+            Te[i] = 0.05;
         for(k=0;k<=NEmax-1;k++)
         {
             Ne[i][k] = 2*Nel[i]*pow((k+0.5)*dEev/(Te[i]*Te[i]*Te[i]*pi),0.5)*exp(-(k+0.5)*dEev/Te[i]);//Maxwell
@@ -151,6 +196,11 @@ void init_data()//задание начальных условий
 	//Writing_data****************************************************
 	init_print();
 	//****************************************************************
+
+	if(st==0)
+        tic = 0.0;
+
+	return tic;
 }
 void init_print()//запись начальных данных
 {

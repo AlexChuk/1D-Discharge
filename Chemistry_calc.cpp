@@ -2,10 +2,11 @@
 # include "Gas_calc.h"
 # include "Chemistry_calc.h"
 
-//int Nchem, Nedf;
 int VMax[Nmax];
 int ChNRe[NRmax][3];//массив номеров реагентов хим.реакций
 int ChM[Nmax][NRmax],Chem[Nmax][NRmax+3];//массив мультипликаторов реакции,массив необходимых реакций
+int ChRad[NRmax];//массив номеров радиационных реакций
+double dEch[NRmax];//массив дефектов энергий реакций
 
 char Rtype[NRmax][10];//массив типов хим.реакций
 
@@ -17,14 +18,15 @@ char RName[NRmax][100];
 int chem_make_react(int Nedf)//формирование общего файла хим. процессов
 {
 	int j,n,nr,nRt,Rt,rev,J,Nn,Nvib,Nchem,k,Ki;
-	char CHstr[10],Cmt[100],RTypCmt[10][100],Tcmt[10];
+	char CHstr[20],Cmt[100],RTypCmt[10][100],Tcmt[10];
 	char symb[] = "------------------------------------------------------------";
 	char Creac[10][10],Micmt[10][10];
 	double x1[10],CKj[10];
 
 	FILE *react;
 	//react = fopen("N2_chemistry.txt", "r");
-	react = fopen("N2_chemistry_new.txt", "r");
+	//react = fopen("N2_chemistry_new.txt", "r");
+	react = fopen("N2_chemistry_new-2.txt", "r");
 	//react = fopen("N2_chemistry_old.txt", "r");
 	//react = fopen("test-react.txt", "r");
 
@@ -92,7 +94,7 @@ int chem_make_react(int Nedf)//формирование общего файла хим. процессов
 			fscanf(react,"%s",&Tcmt);
             if(!strcmp(Tcmt,"Te"))
                 Ki = 3;
-            if(!strcmp(Tcmt,"Tgas"))
+            if(!strcmp(Tcmt,"Tgas") || !strcmp(Tcmt,"Radiat"))
                 Ki = 3;
             if(!strcmp(Tcmt,"VV"))
                 Ki = 3;
@@ -348,7 +350,7 @@ int chem_VV_VT_make(int Nchem,char Cmt[],char VSpec1[],char VSpec2[],double CKi[
 }
 void chem_read_react(int Nchem,int N)//считывание процессов
 {
-	int i,II,j,k,n,err,S_err,Num;
+	int i,II,j,k,n,err,S_err,Num,n_rad;
 	char Cmt[300],Rstr[10];
 	char symb[] = "------------------------------------------------------------";
 
@@ -365,6 +367,7 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 	//Reading of the reactions**********************************************************************
 	Num = 0;
 	S_err = 0;
+	n_rad = 0;
 	for(i=0;i<Nchem;i++)
 	{
 		if(i==0)
@@ -452,6 +455,14 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 			II = 3;
 		if(!strcmp(Rtype[i],"Tgas"))
 			II = 3;
+        if(!strcmp(Rtype[i],"Radiat"))
+        {
+            II = 3;
+
+            n_rad += 1;
+            ChRad[0] = n_rad;
+            ChRad[n_rad] = i;
+        }
 		if(!strcmp(Rtype[i],"Tgas-VT"))
 			II = 3;
         if((!strcmp(Rtype[i],"VV"))||(!strcmp(Rtype[i],"VV'"))||(!strcmp(Rtype[i],"VT")))
@@ -498,7 +509,19 @@ void chem_read_react(int Nchem,int N)//считывание процессов
 
 	printf("%s\n",symb);
 
-	//Selection of necessary reactions****************************************************
+	///Расчёт_дефектов_энергии_реакции*****************************
+	gas_HCpSi_calc(300,N);
+	for(i=0;i<Nchem;i++)
+    {
+        dEch[i] = 0.0;
+        for(n=1;n<N;n++)
+        {
+            if(ChM[n][i]!=0)
+                dEch[i] += -ChM[n][i]*HCpSi[0][n]*Mi[n];///[erg]//CXi[n][0][7]*1.6e-12;
+        }
+    }
+
+	///Selection of necessary reactions****************************************************
 	int I,Jr,Jc,nR,m;
 	FILE *rrp;
 	FILE *rcp;
@@ -632,7 +655,7 @@ void chem_const(double *Kch,double *Kel,int Nedf,int Nchem,int N,double Tel,doub
 
 			Kch[j]=Kf;
 		}
-		if(!strcmp(Rtype[j],"Tgas"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T), k-[см^3/с], Ea-[K]
+		if(!strcmp(Rtype[j],"Tgas") || !strcmp(Rtype[j],"Radiat"))//запись констант реакций в виде - k*(T)^n*exp(-Ea/T), k-[см^3/с], Ea-[K]
 		{
 			Kf = Kchi[j][0]*pow(Tch,Kchi[j][1])*exp(-Kchi[j][2]/Tch);
 
@@ -716,9 +739,9 @@ void chem_const(double *Kch,double *Kel,int Nedf,int Nchem,int N,double Tel,doub
         else
             log = fopen("Log_Kch.txt", "a+");
 
-        fprintf(log,"(R#) Reaction\tt=%.2e[s]\n",tic);
+        fprintf(log,"(R#)\tReaction\tt=%.2e[s]\tdE,eV\n",tic);
         for(j=0; j<Nchem; j++)
-            fprintf(log,"%s\t%.2e\n",RName[j],Kch[j]);
+            fprintf(log,"%s\t%.2e\t%.2lf\n",RName[j],Kch[j],dEch[j]/1.6e-12);
         fprintf(log,"\n\n");
 
 		/*else
@@ -876,15 +899,16 @@ int chem_VV_VT_const(double *Kch,int N,int j,char vin[],double kv10,double Tch)/
 
     return Nvib;
 }
-void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double tic,int dot)//расчёт по времени методом Рунге-Кутта 4 порядка
+void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double *Wrad,double dt,double tic,int dot)//расчёт по времени методом Рунге-Кутта 4 порядка
 {
-	int i,n,j,l;
+	int i,n,m,s,j,l;
 	double al[4] = {0,dt/2,dt/2,dt};
 	double Ci[N];
 	double Rch[Nchem],Rch_rk[4][N];
-	double M,Res,Yi;
+	double M,Res,Yi,dEi;
 
 	//**********************расчёт по явной схеме(Рунге-Кутта_4)**************************
+	//for(i=0;i<1;i++)
 	for(i=0;i<4;i++)
 	{
 
@@ -896,7 +920,7 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 				Ci[n] = *(Ni+n*(LEN+2))+al[i]*Rch_rk[i-1][n];
 		}
 
-		//вычисление скоростей химических реакций************************************************************
+		///Расчет скоростей химических реакций************************************************************
 		M = 0.0;
 		for(n=1;n<N;n++)
 			M += Ci[n];
@@ -919,10 +943,22 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 			}
 
 			Rch[j] = Kch[j]*Res;
+
 		}
 
-		//Коэф-ты к правой части реакций(necessary processes)************************************************
-		int Num1,m,nR=0;
+        ///Расчет Радиационных потерь тепла*********
+        if(i==0)
+        {
+            *Wrad = 0.0;
+            for(s=1;s<ChRad[0];s++)
+            {
+                m = ChRad[s];
+                *Wrad += Rch[m]*dEch[m];///[erg/cm3/s]
+            }
+        }
+
+		///Коэф-ты к правой части реакций(necessary processes)************************************************
+		int Num1,nR=0;
 		for(n=0;n<N;n++)
 		{
 			Num1 = Chem[n][Nchem];
@@ -987,10 +1023,11 @@ void chem_runge_kutta4(double *Ni,int N,double *Kch,int Nchem,double dt,double t
 	for(n=0;n<N;n++)
 	{
 	    *(Ni+n*(LEN+2)) += dt*(Rch_rk[0][n]+2*Rch_rk[1][n]+2*Rch_rk[2][n]+Rch_rk[3][n])/6;
+	    //*(Ni+n*(LEN+2)) += dt*(Rch_rk[0][n]);
 
 	    if(*(Ni+n*(LEN+2))<1.0e-30)
             *(Ni+n*(LEN+2)) = 0.0;
-	}
+    }
 
 	//Writing_Chem-Contributions******************************************************
 	if(dot==Ndots)

@@ -3,15 +3,15 @@
 
 extern double dte;
 
-int CStype;
+int CStype,CSout;
 int CSref[Nmax][9][CSmax],CSR[CSmax][5];
 double CS[NEmax][CSmax],Ith[CSmax];
-//double Ee,Vdr,Jel,Qel,QE;
 
 int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакций)
 {
 	FILE *cross;
-	cross = fopen("Cross_N2_lxtype.txt", "r");
+	//cross = fopen("Cross_N2_lxtype.txt", "r");
+    cross = fopen("Cross_N2_lxtype-2.txt", "r");
 
 	FILE *log;
 	log = fopen("Log_CS.txt", "w");
@@ -19,14 +19,15 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	log = fopen("Log_CS.txt", "a+");
 
-	double X[50],Y[50],A[50],B[50];
+	double X[150],Y[150],A[150],B[150];
 	char CSstr[100],CSstr1[10],Cmt[100];
+	double Stat,shift;
 
 	CStype = 9;
 	char KeyW[][15] =
 	{
 		"ELASTIC",
-		"ROT-EXCITATION",
+		"ROTATION",
 		"VIB-EXCITATION",
 		"EXCITATION",
 		"DISSOCIATION",
@@ -38,7 +39,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	char symb[] = "------------------------------------------------------------";
 
-	int i,k,K,j,J,err,n,n_t,Kw,add,d,s,Serr;
+	int i,k,K,j,J,err,n,n_t,Kw,add,d,s,Serr,rev;
 
 	//считывание комментария
 	fscanf(cross,"%s",&Cmt);
@@ -53,6 +54,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 	while(strcmp(CSstr,"END")!=0)
 	{
 		add = 0;
+		rev = 0;
 
 		err = 0;
 		for(i=0;i<CStype;i++)//сравнение с ключевыми словами
@@ -82,7 +84,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 		{
 			if(!strcmp(CSstr,Spec[n]))
 			{
-				n_t = n;//target particle
+				n_t = n;///target particle
 				CSR[j][2] = n_t+1;
 				err += 1;
 				break;
@@ -94,20 +96,25 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 			fprintf(log,"!!!Unknown target particle - %s in #%d cross section!!!\n ",CSstr,j);
 
 			Serr += 1;
-			break;
+			///break;
 		}
 
-		//обработка 2-й строки
-		if(Kw>=2)//w/o ELASTIC+ROT-EXCITATION
+		///обработка 2-й строки
+		if(Kw>=1)//w/o ELASTIC+ROT-EXCITATION
 		{
 			fscanf(cross,"%s%s",&Cmt,&CSstr);
 			if(Kw==4)
 				fscanf(cross,"%s",&CSstr1);
 
 			if(!strcmp(Cmt,"="))//forvard or rev
-				CSR[j][1] = -1;
+            {
+                CSR[j][1] = -1;
+				rev = 1;
+
+				fscanf(cross,"%lf",&Stat);///Stat=g_gr/g_ex=st_w[nr_p]/st_w[nr_t];
+            }
 			if(!strcmp(Cmt,"->"))
-				CSR[j][1] = 1;
+                CSR[j][1] = 1;
 
 			err = 0;
 			for(n=0;n<N;n++)
@@ -120,7 +127,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 					if(err==2)
 						break;
 				}
-				if((!strcmp(CSstr1,Spec[n]))&&(Kw==4))
+				if((!strcmp(CSstr1,Spec[n]))&&(Kw==4))///"DISSOCIATION"
 				{
 					CSR[j][4] = n+1;//product particle
 					err += 1;
@@ -130,14 +137,14 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 				}
 			}
 
-			//предупреждение
+			///предупреждение
 			if((Kw==4)&&(err<2))
 			{
 				printf("!!!Unknown products in CS: %s %s %s %s - !!!\n ",Spec[n_t],Cmt,CSstr,CSstr1);
 				fprintf(log,"!!!Unknown products in CS: %s %s %s %s - !!!\n ",Spec[n_t],Cmt,CSstr,CSstr1);
 
 				Serr += 1;
-				break;
+				///break;
 			}
 			else if((err==0)&&(Kw!=4))
 			{
@@ -145,16 +152,16 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 				fprintf(log,"!!!Unknown product particle in CS: %s %s %s - !!!\n ",Spec[n_t],Cmt,CSstr);
 
 				Serr += 1;
-				break;
+				///break;
 			}
 		}
 
-		//обработка дополнения ко 2-й строке и считывание 3-ей строки
+		///обработка дополнения ко 2-й строке и считывание 3-ей строки
 		fscanf(cross,"%s",CSstr);
-		if(!strcmp(CSstr,"//add:"))//доп. реакции с таким же сечением "//add: N2(3) N2(5) //"
+		if(!strcmp(CSstr,"//"))//доп. реакции с таким же сечением "//add: N2(3) N2(5) //"
 		{
 			add = 0;
-			fscanf(cross,"%s",CSstr);
+            fscanf(cross,"%s",CSstr);
 			while(strcmp(CSstr,"//")!=0)
 			{
 				err = 0;
@@ -165,8 +172,10 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 						add += 1;
 						CSR[j+add][0] = CSR[j][0];//type
 						CSR[j+add][1] = CSR[j][1];//forvard or rev
-						CSR[j+add][2] = CSR[j][2];//target particle
-						CSR[j+add][3] = n+1;//product particle
+						CSR[j+add][2] = n+1;//target particle
+						CSR[j+add][3] = CSR[j][3];//product particle
+						if(Kw==4)
+                            CSR[j+add][4] = CSR[j][4];//product particle
 						err += 1;
 						break;
 					}
@@ -184,12 +193,23 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 				fscanf(cross,"%s",CSstr);
 			}
 
+            ///сдвиг сечения или нет
+            shift = 0;
+			fscanf(cross,"%s",CSstr);
+			if(!strcmp(CSstr,"shift"))
+                shift = 1;
+
 			fscanf(cross,"%lf%s",&Ith[j],Cmt);
 
 			for(d=1;d<=add;d++)
 			{
-				n = CSR[j+d][3]-1;
-				Ith[j+d] = Ith[j] + CXi[n][0][7];//написано только для случая постоянного реагента(таргета)!!!!!!!!!!внести правки!!!!!!
+				int n0;
+				n0 = CSR[j][2]-1;
+				n = CSR[j+d][2]-1;
+				if(shift>0)
+                    Ith[j+d] = Ith[j] - (CXi[n][0][7]-CXi[n0][0][7]);///same product case!!
+                else
+                    Ith[j+d] = Ith[j];///без сдвига
 			}
 		}
 		else
@@ -201,18 +221,20 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 			fscanf(cross,"%s",Cmt);
 		}
 
-		//формирование массива ссылок на номер сечения
+		///формирование массива ссылок на номер сечения
 		for(d=0;d<=add;d++)
 		{
+			n_t = CSR[j+d][2]-1;
+
 			s = CSref[n_t][Kw][0]+1;
-			CSref[n_t][Kw][s] = j+1;//j+1??????????????????****************
+			CSref[n_t][Kw][s] = j+d+1;//j+1??????????????????****************
 			CSref[n_t][Kw][0] += 1;
 		}
 
-		//считывание 4-ей строки
+		///считывание 4-ей строки
 		fscanf(cross,"%s",Cmt);
 
-		//считывание и обработка сечения
+		///считывание и обработка сечения
 		fscanf(cross,"%s",CSstr);
 		if(!strcmp(CSstr,symb))
 		{
@@ -246,7 +268,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 			break;
 		}
 
-		//линеаризация сечения
+		///линеаризация сечения
 		for(k=0; k<K; k++)
 		{
 			A[k] = (Y[k+1]-Y[k])/(X[k+1]-X[k]);
@@ -256,7 +278,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 		//A[K-1] = (A[K-2]+A[K-3]+A[K-4])/3;
 		//B[K-1] = B[K-2];//(B[K-2]+B[K-3]+B[K-4])/3;
 
-		//построение сечений по расчётной энергетической сетке
+		///построение сечений по расчётной энергетической сетке
 		k = 0;
 		double Ei, CSj;
 		for(i=0; i<NEmax; i++)
@@ -281,35 +303,69 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 				}
 			}
 
-			CS[i][j] = CSj;//сечения,прочитанных из файла процессов, по точкам в центре ячеек сетки
+			CS[i][j] = CSj;///сечения,прочитанных из файла процессов, по точкам в центре ячеек сетки
 
-			int I;
-			for(d=1;d<=add;d++)
+			if(add!=0)
 			{
-				if(Ei<Ith[j+d])
-					CS[i][j+d] = 0.0;
-				else
-				{
-					I = i - int((Ith[j]-Ith[j+d])/dEev);//сдвиг порога по энергии
-					if(I<0)
-					{
-						fprintf(log,"\nWARNING!!!Threshold shift is larger than Ith(target) - %s Cross section #%d \n",KeyW[Kw],j+d);
-						break;
-					}
-					CS[I][j+d] = CS[i][j];
+                int I;
+                for(d=1;d<=add;d++)
+                {
+                    if(Ei<Ith[j+d])
+                        CS[i][j+d] = 0.0;
+                    else
+                    {
+                        I = i - int((Ith[j]-Ith[j+d])/dEev);//сдвиг порога по энергии
+                        if(I<0)
+                        {
+                            fprintf(log,"\nWARNING!!!Threshold shift is larger than Ith(target) - %s Cross section #%d \n",KeyW[Kw],j+d);
+                            break;
+                        }
+                        CS[I][j+d] = CS[i][j];
 
-					if(i==NEmax-1)
-					{
-						while(I<=NEmax-1)
-						{
-							CS[I][j+d] = CS[i][j];//
-							I += 1;
-						}
-					}
-				}
+                        if(i==NEmax-1)
+                        {
+                            while(I<=NEmax-1)
+                            {
+                                CS[I][j+d] = CS[i][j];//
+                                I += 1;
+                            }
+                        }
+                    }
+                }
+
 			}
 
 		}
+
+		///for_reverse_process***************************************
+        if(rev!=0)
+        {
+            int nr_t = CSR[j][3]-1;
+            int nr_p = CSR[j][2]-1;
+            int Ii = int(Ith[j]/dEev-0.5);
+
+            ///Stat=g_gr/g_ex=st_w[nr_p]/st_w[nr_t];
+            for(i=0;i<NEmax;i++)
+            {
+                Ei = (i+0.5)*dEev;
+
+                if(i+Ii<NEmax)
+                    CS[i][j+1] = CS[i+Ii][j]*(1+Ith[j]/Ei)*Stat;
+                else
+                    CS[i][j+1] = CS[NEmax-Ii-1][j+1];
+            }
+
+            CSR[j+1][0] = 5;///type="DEEXCITATION"
+            CSR[j+1][1] = 1;///
+            CSR[j+1][2] = nr_t+1;///target
+            CSR[j+1][3] = nr_p+1;///product
+            Ith[j+1] = Ith[j];///threshold
+
+            ///Поправка в массив ссылок
+            s = CSref[nr_t][5][0]+1;
+			CSref[nr_t][5][s] = j+2;
+			CSref[nr_t][5][0] += 1;
+        }
 
 		///Loging*****************************************************
 		/*fprintf(log,"CS#%d at calc-energy net\n",j);
@@ -327,7 +383,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 		//CS[j][0] = 0.0;
 		//if(X[1]<dE1) {CXC[as][k][0]=Y[1];}
 
-		j += 1+add;
+		j += 1+add+rev;
 
 		fscanf(cross,"%s",CSstr);
 	}
@@ -383,7 +439,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 	}
 	fprintf(log,"\n\n");
 
-	int Nt = 3;
+	int Nt = 12;
 	fprintf(log,"Log for CSref[%s][][]-matrix\n\n",Spec[Nt]);
 
 	fprintf(log,"CStype\t\t RSum for %s\t\t CS-num\n\n",Spec[Nt]);
@@ -429,7 +485,7 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 			fprintf(react,"R%d\t e\t + %s\t ->\t %s\t ;\tEEDF\t//see_CS-set\n",jj+1,Spec[n1],Spec[n2]);
 			jj += 1;
 		}
-		else
+		else if(n0>1)
 		{
 			if(n3>0)
 			{
@@ -448,6 +504,8 @@ int EEDF_read_CS(int N)//считывание сечений EEDF-процессов(возврат кол-ва реакци
 
 	fclose(react);
 
+	CSout = J-jj;
+
 	printf("%d of %d EEDF-processes were added to ReactionSet.txt\n\n",jj,J);
 	fprintf(log,"%d of %d EEDF-processes were added to ReactionSet.txt\n\n",jj,J);
 
@@ -462,7 +520,7 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
     double Ee,Vdr,De_Muel;
 
 	double A,B,C,F,den;
-	double Vm[NEmax],Vmi[NEmax],D[NEmax],Vm_av,Del,Muel;
+	double Vm[NEmax],Vmi[NEmax],CSNm[NEmax],D[NEmax],Vm_av,Del,Muel;
 	double Ur,Ul,Dr,Dl,Vr,Vl;
 	double Ni[N];
 
@@ -489,13 +547,14 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
         {
             Vm[k] = 0.0;
             Vmi[k] = 0.0;
+            CSNm[k] = 0.0;
             double V = 0.0;
             for(n=1;n<N;n++)//по всем компонентам смеси (с кот. сталк. эл-ны), кроме электронов
             {
                 //elastic collisions
                 Jmax = CSref[n][0][0];//m=0
 
-                if(Jmax>0)
+                if(Jmax>0 && Ni[n]>0.0)
                 {
                     for(j=1;j<=Jmax;j++)
                     {
@@ -504,7 +563,9 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
                         //CS[k][J] = 1e-15;//Test_for_Druvestein
                         //V = 2.0e11;//Test_for_Maxwell
 
-                        V = CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ni[n];//sqrt(2/me)=4.69e13
+                        CSNm[k] += CS[k][J]*Ni[n];
+
+                        V = CS[k][J]*sqrt(2.0/me*dE*(k+0.5))*Ni[n];//sqrt(2/me)=4.69e13
 
                         Vm[k] += V;//[1/s]
                         Vmi[k] += V/Mi[n];
@@ -575,8 +636,8 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
                     if(Jmax>0)//только по ненулевым типам процессов
                     {
-                        //excitation(vib,elec,diss)
-                        if((m>=2)&&(m<=4))
+                        //excitation(vib,elec,diss)+rotation
+                        if((m>=1)&&(m<=4))
                         {
                             for(j=1;j<=Jmax;j++)
                             {
@@ -592,18 +653,18 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
                             }
                         }
 
-                        //deexcitation(vib,elec)
+                        //deexcitation
                         if(m==5)
                         {
                             for(j=1;j<=Jmax;j++)
                             {
                                 J = CSref[n][m][j]-1;
 
-                                s = k+int(Ith[J]/dEev);
-                                if(s>=NEmax-1)
-                                    s = NEmax-1;
+                                s = k-int(Ith[J]/dEev);
 
-                                Qex = CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ne[k]-CS[s][J]*sqrt(2/me*dE*(s+0.5))*Ne[s];
+                                Qex = -CS[k][J]*sqrt(2/me*dE*(k+0.5))*Ne[k];
+                                if(s>0)
+                                    Qex += CS[s][J]*sqrt(2/me*dE*(s+0.5))*Ne[s];
                                 Qinel += Qex*Ni[n];
                             }
                         }
@@ -723,23 +784,18 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 
     //Vdr-calculation*************************************************
 
-    /*Vm_av = 0.0;
-    for(k=0;k<NEmax;k++)
-        Vm_av += Vm[k]*Ne[k]*dEev;
-    Vm_av *= 1.0/Nel;//
-    Muel = e/(me*Vm_av);//[см2/(абс.СГС*с)]*/
-
-    Vm_av = 0.0;
-    for(k=0;k<NEmax;k++)
-        Vm_av += Ne[k]*dEev/Vm[k];
-    Vm_av *= 1.0/Nel;//
-    Muel = Vm_av*e/me;//[см2/(абс.СГС*с)]
+    Muel = 0.0;
+    for(k=0;k<NEmax-1;k++)
+        Muel += (k+1)*(Ne[k+1]/sqrt(k+1.5)-Ne[k]/sqrt(k+0.5))/CSNm[k];
+    Muel *= -sqrt(2.0*dE/me)*e/(3.0*Nel)*dEev/dE;
     *Mue = Muel;
+
+    //De-calculation**************************************************
 
     Del = 0.0;
     for(k=0;k<NEmax;k++)
-        Del += (k+0.5)*dE*Ne[k]*dEev/Vm[k];
-    Del *= 2.0/(me*3.0*Nel);
+        Del += sqrt((k+0.5)*dE)*Ne[k]*dEev/CSNm[k];
+    Del *= sqrt(2.0/me)/(3.0*Nel);
     *De = Del;//[см2/с]
 
     De_Muel = Del*Eabs/Muel;//[В]
@@ -762,14 +818,14 @@ void EEDF_calc(double *Ne,double *Nni,int N,double *Te,double *dTe,double E,doub
 }
 void EEDF_const_calc(double *Ne,int N,double *Kel,int Nedf,double Nel,double tic)//Kel(EEDF)-calculation
 {
-	int I,j,k,J,Jmax,n,m;
+	int I,j,k,J,Jmax,n,m,dm;
     double Ki,K[Nedf];
 
     for(m=0;m<Nedf;m++)
     {
         Ki = 0.0;
         for(k=0;k<NEmax;k++)//int(Ith[m])
-            Ki += CS[k][m+1]*sqrt(2.0/me*dE*(k+0.5))*Ne[k]*dEev;
+            Ki += CS[k][m+CSout]*sqrt(2.0/me*dE*(k+0.5))*Ne[k]*dEev;
         Kel[m] = Ki/Nel;
     }
 

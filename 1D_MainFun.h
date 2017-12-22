@@ -18,8 +18,8 @@
 # define LEN 10  //dots per axis
 # define NEmax 1000
 # define Nmax 100
-# define CSmax 100
-# define NRmax 3000
+# define CSmax 500
+# define NRmax 5000
 
 const double
 	pi = 3.141592653589,
@@ -41,7 +41,7 @@ extern int NR,Ndots;//N,Nt,Nte,Nchem,Nedf,Ndots,
 extern char Spec[Nmax][10],Spec_R[Nmax][10];
 extern double Mi[Nmax],HCpSi[3][Nmax],CXi[Nmax][2][8];
 extern double Emax,dE,dEev;
-extern char Geom[20];
+extern char Geom[10];
 extern double Len,l[LEN+3],Hght;
 extern double Gamma[Nmax][2],Tw;
 
