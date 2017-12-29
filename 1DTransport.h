@@ -9,6 +9,6 @@ void SpecTransport(int,double *,double *,double *,double *,double *,double *,dou
 void HeatTransport(double *,double *,double *,double *,double *,double *,double *,int,double,double *,double *,double);
 void TeTransport(double *,double *,double *,double *,int,double);
 void TransportBoundary(int,double *,double *,double *,double *,double *,double *,double);
-void TransportBoundary_mod(int,double *,double *,double *,double *,double *,double *,double);
+void TransportBoundary_mod(int,double *,double *,double *,double *,double *,double *,double *,double);
 
 #endif // TRANSPORT_H

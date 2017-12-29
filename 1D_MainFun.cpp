@@ -41,7 +41,7 @@ int main(void)
     }
 
 	dot = 0, dot1 = 0, nt = 0;
-	Ndot1 = int(Ndots/50);//20);///75);
+	Ndot1 = int(Ndots/150);//20);///75);
 	do
 	{
 		dot += 1;
@@ -50,7 +50,7 @@ int main(void)
         if((nt==0) || (dot==Ndots) || (dTgas[i]>10.0) || (dTe[i]>0.1))
             Trasport_coefs_calc(N,&Ni[0][0],Del,Muel,&Di[0][0],&Mui[0][0],Lam,Pgas,Tgas,Te);
 
-        TransportBoundary_mod(N,&Ni[0][0],&Xi[0][0],&Di[0][0],Ngas,Tgas,Te,Tw);
+        TransportBoundary_mod(N,&Ni[0][0],&Xi[0][0],&Di[0][0],Ngas,Tgas,Pgas,Te,Tw);
 
         HeatTransport(Hgas,Ngas,Tgas,Lam,&Ni[0][0],&Xi[0][0],&Di[0][0],N,Ez,Jel,Wrad,dt);
 
@@ -70,15 +70,6 @@ int main(void)
             if((nt==0) || (dTgas[i]>10.0) || (dTe[i]>0.1) || (dot==Ndots))//Ndots|| (dTe[i]>0.01)
                 chem_const(&Kch[i][0],&Kel[i][0],Nedf,Nchem,N,Te[i],Tgas[i],tic);
             chem_runge_kutta4(&Ni[0][i],N,&Kch[i][0],Nchem,&Wrad[i],dt,tic,dot1);
-
-            /*
-            Ngas[i] = 0.0;
-            for(n=0;n<N;n++)
-                Ngas[i] += Ni[n][i];
-
-            for(n=0;n<N;n++)
-                Xi[n][i] = Ni[n][i]/Ngas[i];
-            */
         }
 
         //TransportBoundary(N,&Ni[0][0],&Xi[0][0],&Di[0][0],Ngas,Tgas,Te,Tw);
@@ -166,9 +157,9 @@ double Field_correction(double *Icalc,double Iexp,double *Jel,double Eold,double
         if(fabs(Iexp-Jsum)*1.0e3>0.1)
         {
             if(Iexp>Jsum)
-                Enew = Eold*1.005;
+                Enew = Eold*1.0025;
             if(Jsum>Iexp)
-                Enew = Eold/1.005;
+                Enew = Eold/1.0025;
 
             //printf("Stable_Ez-correction\n");
         }

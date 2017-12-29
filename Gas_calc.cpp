@@ -154,7 +154,9 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
 	i = 1;
 	printf("Time = %.2e[s]\n",tic);
 	printf("Point - l[%d] = %.2lf\n",i,l[i]);
-	printf("I = %.2lf[mA]\tP = %.1lf[Torr]\tT = %.1lf[K]\tXe = %.2e\t%s = %.2e[cm-3]\n",Icalc*1e3,Pgas[i]/p0,Tgas[i],Nel[i]/Ngas[i],Spec[5],Ni[5*(LEN+2)+i]);
+	printf("P = %.1lf[Torr]\tT = %.1lf[K]\tTv = %.1lf[K]\n",Pgas[i]/p0,Tgas[i],Tv[i]);
+	printf("I = %.2lf[mA]\tEz = %.1lf[V/cm]\n",Icalc*1e3,E*Eabs);
+	printf("Xe = %.2e\t%s = %.2e[cm-3]\t%s = %.2e[cm-3]\t%s = %.2e[cm-3]\n\n",Nel[i]/Ngas[i],Spec[4],Ni[4*(LEN+2)+i],Spec[8],Ni[8*(LEN+2)+i],Spec[12],Ni[12*(LEN+2)+i]);
 
     //запись параметров газа*******************************************************************
 	log = fopen("Gas_data.txt", "a+");

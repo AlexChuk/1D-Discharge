@@ -81,7 +81,7 @@ void Trasport_coefs_calc(int N,double *Ni,double *Del,double *Muel,double *Di,do
             //Ambipolar_Case:**********************************************
             if(n==0)
                 Damb[i] = 0.0;
-            else if(n<=3)
+            else if(n<=2)//3
             {
                 if(n==1 || n==3)
                     Di[n*(LEN+2)+i] = 0.07;///[cm2/s]--из справочника "Физ.Величины"_стр.433
@@ -91,7 +91,7 @@ void Trasport_coefs_calc(int N,double *Ni,double *Del,double *Muel,double *Di,do
                     //Di[n*(LEN+2)+i] *= Ni[n*(LEN+2)+i]/Ni[i];
                 Damb[i] += Di[n*(LEN+2)+i];
 
-                if(n==3)
+                if(n==2)
                 {
                     Damb[i] *= PTi*Tgas[i]*Tgas[i]/Pgas[i]*(1.0+Te[i]*eV_K/Tgas[i]);///********************************
                     for(int k=0;k<=n;k++)
@@ -346,8 +346,8 @@ double* Transport_SWEEPsolve_mod(double *Ng,double *Xi,double *Di,double *Vi,dou
         //SWEEP Coefficients:
         A = -A_L;///[i-1](left_cell)
         B = -A_R;///[i+1](right_cell)
-        C = A_C;//+Ng[i]/dt;///[i](center_cell)
-        F = 0.0;//Xi[i]*Ng[i]/dt+Si[i];///RHS-part
+        C = A_C+Ng[i]/dt;///[i](center_cell)
+        F = Xi[i]*Ng[i]/dt+Si[i];///RHS-part
 
         if(i==1)//see SpecTransport();
         {
@@ -420,7 +420,9 @@ void SpecTransport(int n,double *Xi,double *Ni,double *Di,double *Mui,double *Ng
 
     for(i=1;i<=LEN;i++)
         //Xi[i] = *(res+i);///NEW
-        Ni[i] = *(res+i)*Ngas[i];///NEW
+        //Ni[i] += (*(res+i)-Xi[i])*Ngas[i];///reNEW
+        Ni[i] = *(res+i)*Ngas[i];///reNEW
+
 }
 void TransportBoundary(int N,double *Ni,double *Xi,double *Di,double *Ngas,double *Tgas,double *Te,double Twall)
 {
@@ -597,7 +599,7 @@ void TransportBoundary(int N,double *Ni,double *Xi,double *Di,double *Ngas,doubl
     bet_bound[N+1][1] = 0.0;
 
 }
-void TransportBoundary_mod(int N,double *Ni,double *Xi,double *Di,double *Ngas,double *Tgas,double *Te,double Twall)
+void TransportBoundary_mod(int N,double *Ni,double *Xi,double *Di,double *Ngas,double *Tgas,double *Pgas,double *Te,double Twall)
 {
     int n,nX=11;
     double Pe,D,Vt;
@@ -607,8 +609,19 @@ void TransportBoundary_mod(int N,double *Ni,double *Xi,double *Di,double *Ngas,d
     dlL = 0.5*(l[2]-l[0]);
     dlR = 0.5*(l[LEN+2]-l[LEN]);
 
-    ///Boundary_conditions********************************************
+    ///Temperature_Boundary_conditions*****************************************
+    ///Left_boundary**********************
+    if(!strcmp(Geom,"axial"))
+        Tgas[0] = Tgas[1];
+    else if(!strcmp(Geom,"cartesian"))
+        Tgas[0] = Twall;
+    Ngas[0] = Pgas[0]/(kb*Tgas[0]);
 
+    ///Right_boundary*********************
+    Tgas[LEN+1] = Twall;
+    Ngas[LEN+1] = Pgas[LEN+1]/(kb*Tgas[LEN+1]);
+
+    ///Species_Boundary_conditions*********************************************
     dNL = 0.0;
     dNR = 0.0;
     for(n=0;n<N;n++)
@@ -736,29 +749,11 @@ void TransportBoundary_mod(int N,double *Ni,double *Xi,double *Di,double *Ngas,d
         Xi[n*(LEN+2)+LEN+1] += -1.0*bet_bound[n][1]/alXR;
     }
 
-    ///Temperature_Boundary_conditions*****************************************
-    ///Left_boundary**********************
-    if(!strcmp(Geom,"axial"))
-        Tgas[0] = Tgas[1];
-    else if(!strcmp(Geom,"cartesian"))
-        Tgas[0] = Twall;
-
-    ///Right_boundary*********************
-    Tgas[LEN+1] = Twall;
-
-    /*Ngas[0] = 0.0;
-    Ngas[LEN+1] = 0.0;
     for(n=0;n<N;n++)
     {
-        Ngas[0] += Ni[n*(LEN+2)];
-        Ngas[LEN+1] += Ni[n*(LEN+2)+LEN+1];
+        Ni[n*(LEN+2)] = Xi[n*(LEN+2)]*Ngas[0];
+        Ni[n*(LEN+2)+LEN+1] = Xi[n*(LEN+2)+LEN+1]*Ngas[LEN+1];
     }
-
-    for(n=0;n<N;n++)
-    {
-        Xi[n*(LEN+2)] = Ni[n*(LEN+2)]/Ngas[0];
-        Xi[n*(LEN+2)+LEN+1] = Ni[n*(LEN+2)+LEN+1]/Ngas[LEN+1];
-    }*/
 
     ///Ne-Te_Boundary_conditions***********************************************
     ///left_boundary**********************
@@ -810,7 +805,7 @@ void HeatTransport(double *Hgas,double *Ngas,double *Tgas,double *Lam,double *Ni
 
         //Учет диффузионного переноса************
 
-        /*JHL = JHR;
+        JHL = JHR;
         if(i==1)
         {
             T0 = (Tgas[i]+Tgas[i-1])*0.5;
@@ -836,7 +831,7 @@ void HeatTransport(double *Hgas,double *Ngas,double *Tgas,double *Lam,double *Ni
 
             Dn = 0.5*(Di[n*(LEN+2)+i+1]*Ngas[i+1]+Di[n*(LEN+2)+i]*Ngas[i]);
             JHR += - HCpSi[0][n]*Mi[n]*Dn*(Xi[n*(LEN+2)+i+1]-Xi[n*(LEN+2)+i]);///NEW_Xi
-        }*/
+        }
 
         Hgas[i] += -dt*(GF_R[i]*(QR+JHR)-GF_L[i]*(QL+JHL))+dt*(J[i]*E-Wrad[i]);///{J*E}=[erg/cm3/c]
     }
