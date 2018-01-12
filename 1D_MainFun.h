@@ -6,7 +6,7 @@
 
 # include "Initials.h"
 # include "1Dmesh.h"
-//# include "1DPoisson.h"
+# include "1DPoisson.h"
 # include "1DTransport.h"
 # include "Chemistry_calc.h"
 # include "EEDF_calc.h"
@@ -33,7 +33,7 @@ const double
 	kb = 1.38e-16,
 	eV_K = 11605,//1 эВ в кельвинах К
 	p0 = 1333.22, // коэф-т перевода Торр --> СГС [эрг/см^3]
-	exact = 1.0e-5,//точность счета
+	exact = 1.0e-3,//точность счета
     cm_eV = 8065.5447;//коэф-т перевода cm-1 --> эВ
 
 
@@ -44,5 +44,6 @@ extern double Emax,dE,dEev;
 extern char Geom[10];
 extern double Len,l[LEN+3],Hght;
 extern double Gamma[Nmax][2],Tw;
+extern double CDi[Nmax],CMui[Nmax];
 
 #endif

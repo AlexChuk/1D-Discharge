@@ -59,56 +59,57 @@ void Transport_GFcalc(char *Geom)
     }
 
 }
-void Trasport_coefs_calc(int N,double *Ni,double *Del,double *Muel,double *Di,double *Mui,double *Lam,double *Pgas,double *Tgas,double *Te)
+void Trasport_coefs_calc(int N,int Nion,double *Ni,double *Del,double *Muel,double *Di,double *Mui,double *Lam,double *Pgas,double *Tgas,double *Te,bool EqP)
 {
-    double Damb[LEN+2],PTi,PTn;
-    PTi = 760*p0/(300*300);///********************************
-    PTn = 760*p0/pow(300,1.5);
+    double Damb[LEN+2],SumNi[LEN+2],PTi,PTn,MuPTi;
+    int i,n;
 
     Te[0] = Te[1];
     Te[LEN+1] = Te[LEN];
 
-    for(int n=0;n<N;n++)
+    for(n=0;n<N;n++)
     {
-        for(int i=0;i<=LEN+1;i++)
+        for(i=0;i<=LEN+1;i++)
         {
-            /*if(n==0)
-            {
-                Di[n*(LEN+2)+i] = 0.001*Del[i];
-                Mui[n*(LEN+2)+i] = 0.0;//1e-5*Muel[i];//1.0;//e/me/Vm_av;
-
-            }*/
-            //Ambipolar_Case:**********************************************
             if(n==0)
-                Damb[i] = 0.0;
-            else if(n<=2)//3
             {
-                if(n==1 || n==3)
-                    Di[n*(LEN+2)+i] = 0.07;///[cm2/s]--из справочника "Физ.Величины"_стр.433
-                if(n==2)
-                    Di[n*(LEN+2)+i] = 0.058;///[cm2/s]--из справочника "Физ.Величины"_стр.433
-                //if()
-                    //Di[n*(LEN+2)+i] *= Ni[n*(LEN+2)+i]/Ni[i];
-                Damb[i] += Di[n*(LEN+2)+i];
+                Di[n*(LEN+2)+i] = Del[i];
+                Mui[n*(LEN+2)+i] = Muel[i];
 
-                if(n==2)
+                PTi = Tgas[i]*Tgas[i]/Pgas[i];
+                MuPTi = 0.0;///????????
+                PTn = pow(Tgas[i],1.5)/Pgas[i];
+            }
+            else if(n>0 && n<Nion)
+            {
+                if(EqP==true)///Poisson_Case:***************************************
                 {
-                    Damb[i] *= PTi*Tgas[i]*Tgas[i]/Pgas[i]*(1.0+Te[i]*eV_K/Tgas[i]);///********************************
-                    for(int k=0;k<=n;k++)
-                        Di[k*(LEN+2)+i] = Damb[i]/n;
+                    Di[n*(LEN+2)+i] = CDi[n]*PTi;
+                    Mui[n*(LEN+2)+i] = CMui[n]*MuPTi;
                 }
+                else///Ambipolar_Case:**********************************************
+                {
+                    if(n==1)
+                    {
+                        Damb[i] = 0.0;
+                        SumNi[i] = 0.0;
+                    }
+                    Damb[i] += CDi[n]*PTi;//*Ni[n*(LEN+2)+i];
+                    SumNi[i] += Ni[n*(LEN+2)+i];
 
-                Mui[n*(LEN+2)+i] = 0.0;//1e-5*Muel[i];//1.0;//e/me/Vm_av;
+                    if(n==Nion-2)///excl_"N2-"
+                    {
+                        Damb[i] *= (1.0+Te[i]*eV_K/Tgas[i]);
+                        for(int k=0;k<=n;k++)
+                            Di[k*(LEN+2)+i] = Damb[i]/n;//SumNi[i];
+                    }
+
+                    Mui[n*(LEN+2)+i] = 0.0;
+                }
             }
             else
             {
-                if(n>=8 && n<=10)
-                    Di[n*(LEN+2)+i] = 0.06;///[N,N(2D),N(2P)]_MankModel-data
-                else
-                Di[n*(LEN+2)+i] = 0.028;///[N2...]_[cm2/s]_MankModel-data
-
-                Di[n*(LEN+2)+i] *= PTn*pow(Tgas[i],1.5)/Pgas[i];
-
+                Di[n*(LEN+2)+i] = CDi[n]*PTn;
                 Mui[n*(LEN+2)+i] = 0.0;//1.0;//e/me/Vm_av;
             }
 
@@ -377,7 +378,7 @@ double* Transport_SWEEPsolve_mod(double *Ng,double *Xi,double *Di,double *Vi,dou
 
     return &Xi[0];
 }
-void SpecTransport(int n,double *Xi,double *Ni,double *Di,double *Mui,double *Ngas,double *Tgas,double *Te,double E,double dt)
+void SpecTransport(int n,double *Xi,double *Ni,double *Di,double *Mui,double *Ngas,double *Tgas,double *Te,double *Er,bool EqP,double dt)
 {
 	/*
                 left wall                                                               right wall
@@ -398,12 +399,18 @@ void SpecTransport(int n,double *Xi,double *Ni,double *Di,double *Mui,double *Ng
     {
         if(i==1)
         {
-            Vdr[i-1] = 0.5*(Mui[i]+Mui[i-1])*0.0;//E[i-1];
+            if(EqP==true)///Poisson
+                Vdr[i-1] = 0.5*(Mui[i]+Mui[i-1])*Er[i-1];
+            else///Ambipolar
+                Vdr[i-1] = 0.0;
             Si[i-1] = 0.0;
             Si[LEN+1] = 0.0;
         }
 
-        Vdr[i] = 0.5*(Mui[i+1]+Mui[i])*0.0;//*E[i];
+        if(EqP==true)///Poisson
+            Vdr[i] = 0.5*(Mui[i+1]+Mui[i])*Er[i];
+        else///Ambipolar
+            Vdr[i] = 0.0;
         Si[i] = 0.0;
     }
 

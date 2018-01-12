@@ -3,7 +3,7 @@
 #define POISSON_CALC_H
 
 //int Poisson_GFcalc(char);
-void Poisson_SORsolve(double *);
-void Poisson_boundary(int,double,int,double)
+void Poisson_SORsolve(double *,double *,int,int);
+void Poisson_boundary(int,double,int,double);
 
 #endif

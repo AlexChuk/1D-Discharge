@@ -1,9 +1,11 @@
 # include "1D_MainFun.h"
 # include "1DPoisson.h"
+# include "1DTransport.h"
 
 double w = 1.5;
+extern double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
 
-void Poisson_SORsolve(double *Fi)
+void Poisson_SORsolve(double *Fi,double *Ni,int Npos,int Nneg)
 {
 	/*
 	**************************************************************
@@ -20,36 +22,46 @@ void Poisson_SORsolve(double *Fi)
     /*
 	!!!!!!!!!Необходимые доработки:
         - ГУ в цикле
-        - улучшить алгоритм сходимости (не гонять весь диапазон по координате)
+        - улучшить алгоритм сходимости (не гонять весь диапазон по координате)_ для "частых" сеток
         - определить алгоритм выбора константы w
 	*/
 
-    int i;
+	/*
+                left wall                                                               right wall
+    Ni[i]         |                                                                       |
+    Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
+            |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
+    l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
+    E[i]          |                                                                       |
+                  |                                                                       |
+    */
+
+
+    int i,n;
 	double Res,Ch,RHS;
 
 	/*if(Gf==0)
         Gf = Poisson_GFcalc(char Geom);*/
 
-    Poisson_boundary(v0,V0,vlen,Vlen);
+    //Poisson_boundary(v0,V0,vlen,Vlen);
 
-    int cnt = 0,int Conv,conv[I+2];
-
+    int cnt = 0,Conv,conv[LEN+2];
 
 	do
 	{
         Conv = 0;
         for(i=1;i<LEN+1;i++)
         {
-            Ch = -Ni[0][i];//electrons
-            for(n=1;n<Nneg;n++)//negative ions
-                Ch += -Ni[n][i];
+            Ch = -Ni[i] ;//electrons
+            for(n=1;n<Npos;n++)//positive ions
+                Ch += Ni[n*(LEN+2)+i] ;
 
-            for(n=Nneg;n<Npos;n++)//positive ions
-                Ch += Ni[n][i];
+            for(n=Npos;n<Nneg;n++)//negative ions
+                Ch += -Ni[n*(LEN+2)+i] ;
 
             RHS = -4*pi*e*Ch;
 
-            Res = Fi[i](1-w) + w*(RHS-GF_L[i]*Fi[i-1]-GF_R[i]*Fi[i+1])/GF_C[i];//Gauss-Seidel if w = 1.0
+            Res = Fi[i]*(1-w) + w*(RHS-GF_L[i]*Fi[i-1]-GF_R[i]*Fi[i+1])/GF_C[i];//Gauss-Seidel if w = 1.0
 
             if(fabs(Fi[i]-Res)<exact);
                 Conv ++;

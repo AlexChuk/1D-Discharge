@@ -6,10 +6,11 @@ int main(void)
 {
     extern double   Ni[Nmax][LEN+2],Xi[Nmax][LEN+2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2],
                     Ne[LEN+2][NEmax],Nel[LEN+2],Te[LEN+2],Tv[LEN+2],
-                    Ez,Er[LEN+1],Iexp;
+                    Ez,Er[LEN+1],Fir[LEN+2],Iexp;
 
     extern double tau,dt;//dte;
-    extern int N;
+    extern int N,Nneg,Npos;
+    extern bool EQP;
 
     int Nedf,Nchem;
     int i,n,nt,dot,dot1,Ndot1;
@@ -47,17 +48,18 @@ int main(void)
 		dot += 1;
 		dot1 += 1;
 
-        if((nt==0) || (dot==Ndots) || (dTgas[i]>10.0) || (dTe[i]>0.1))
-            Trasport_coefs_calc(N,&Ni[0][0],Del,Muel,&Di[0][0],&Mui[0][0],Lam,Pgas,Tgas,Te);
+        if((EQP==true) || (nt==0) || (dot1==Ndot1))
+            Poisson_SORsolve(Fir,Er,&Ni[0][0],Npos,Nneg);
+
+        if((nt==0) || (dot==Ndots) || (dTgas[1]>10.0) || (dTe[1]>0.1))///???????
+            Trasport_coefs_calc(N,Npos+Nneg,&Ni[0][0],Del,Muel,&Di[0][0],&Mui[0][0],Lam,Pgas,Tgas,Te,EQP);
 
         TransportBoundary_mod(N,&Ni[0][0],&Xi[0][0],&Di[0][0],Ngas,Tgas,Pgas,Te,Tw);
 
         HeatTransport(Hgas,Ngas,Tgas,Lam,&Ni[0][0],&Xi[0][0],&Di[0][0],N,Ez,Jel,Wrad,dt);
 
         for(n=0;n<N;n++)
-            SpecTransport(n,&Xi[n][0],&Ni[n][0],&Di[n][0],&Mui[n][0],Ngas,Tgas,Te,Ez,dt);
-
-		//1DPoisson_SORsolve(Fi,&Ni[0][0]);
+            SpecTransport(n,&Xi[n][0],&Ni[n][0],&Di[n][0],&Mui[n][0],Ngas,Tgas,Te,Er,EQP,dt);
 
         for(i=1;i<=LEN;i++)
         {

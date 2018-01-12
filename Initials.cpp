@@ -4,7 +4,7 @@
 double Ne[LEN+2][NEmax],Xi[Nmax][LEN+2],Ni[Nmax][LEN+2],Mi[Nmax],LJi[Nmax][2],Pgas[LEN+2],Tgas[LEN+2],Ngas[LEN+2],Rogas[LEN+2],Hgas[LEN+2];
 double Nel[LEN+2],Te[LEN+2],Tv[LEN+2];
 double Gamma[Nmax][2];
-double Ez,Er[LEN+1],Fi[LEN+2],Iexp;
+double Ez,Er[LEN+1],Fir[LEN+2],Iexp;
 double Tinit,Pinit,Xinit[Nmax],E_Ninit;
 double dTgas,dTe,dNel;
 double Len,Hght,Tw;
@@ -13,10 +13,12 @@ double Emax,dE,dEev;
 int v0,vlen;
 double V0,Vlen;
 
-int N,NR,Nt,Nte,Ndots;
+int N,NR,Nt,Nte,Ndots,Nneg,Npos;
 char Spec[Nmax][10],Spec_R[Nmax][10],GeomVect[10];
 char Geom[10],Start[10],FileStart[20];
 double CXi[Nmax][2][8];
+double CDi[Nmax],CMui[Nmax];
+bool EQP;
 
 void init_read()//считывание начальных данных
 {
@@ -51,6 +53,13 @@ void init_read()//считывание начальных данных
 
 	fscanf(init,"%s%s",&Geom,&Cmt);
 	fscanf(init,"%s%s%s",&Start,&FileStart,&Cmt);
+
+	char ErCase[10];
+	fscanf(init,"%s%s",&ErCase,&Cmt);
+	if(!strcmp(ErCase,"poisson"))
+        EQP = true;
+    else if(!strcmp(ErCase,"ambipolar"))
+        EQP = false;
 	fscanf(init,"%d%lf%s",&v0,&V0,&Cmt);
 	fscanf(init,"%d%lf%s",&vlen,&Vlen,&Cmt);
 
@@ -58,10 +67,45 @@ void init_read()//считывание начальных данных
 	dE = dEev*1.602e-12;//[eV]=1.602e-12[erg]
 
 	int n,x,i,N1;
+	Npos = 0;
+	Nneg = 0;
 	fscanf(init,"%s",&Cmt);
-	//fscanf(init,"%d%s%lf",&N1,&Spec[0],&Xi[0],&Gamma[0][0]);//электроны
 	for(n=0;n<N;n++)
-        fscanf(init,"%d%s%lf%lf%lf",&N1,&Spec[n],&Xinit[n],&Gamma[n][0],&Gamma[n][1]);
+    {
+        fscanf(init,"%d%s%lf%lf%lf%lf",&N1,&Spec[n],&Xinit[n],&Gamma[n][0],&Gamma[n][1],&CDi[n]);
+
+        if(strchr(Spec[n],'+')!=NULL)
+        {
+            Npos++;
+            fscanf(init,"%lf",&CMui[n]);
+        }
+        else if(strchr(Spec[n],'-')!=NULL)
+        {
+            Nneg++;
+            fscanf(init,"%lf",&CMui[n]);
+        }
+    }
+
+    ///Drift-Diff_Coefs_correction*******************************
+    double  PTi,PTn,MuPTi;
+    PTi = 760*p0/(300*300);
+    PTn = 760*p0/pow(300,1.5);
+    MuPTi = 0.0;
+    for(n=1;n<N;n++)
+    {
+        if(n<Npos+Nneg)///ions
+        {
+            CDi[n] *= PTi;
+            CMui[n] *= MuPTi;
+        }
+        else///neutrals
+            CDi[n] *= PTn;
+
+        /*
+            "N2+,N4+" - CDi=0.07,0.058;[cm2/s]--из справочника "Физ.Величины"_стр.433
+            "[N,N(2D),N(2P),N2..." - CDn = 0.06,0.028;[cm2/s]--MankModel-data
+        */
+    }
 
   	//Считывание_выбранных_компонент_для_вывода_скоростей_процессов*******************************
 	fscanf(init,"%s",&Cmt);
