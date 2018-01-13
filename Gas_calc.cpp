@@ -145,7 +145,7 @@ void gas_TP_calc(double *Nn,double *Xn,int N,double *Pgas,double *Tgas,double *d
     *dEzN = Ez*(1/Nout-1/Nin)*1e17*Eabs;//[Td]
 	//************************************************************
 }
-void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double E,double *Jel,double Icalc,double *Ne,double tic)//запись в файл
+void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double *Hgas,double *Rogas,double *Nel,double *Te,double *Tv,double E,double *Er,double *Fir,double *Jel,double Icalc,double *Ne,double tic)//запись в файл
 {
 	int i,k,n;
 	FILE *log;
@@ -237,6 +237,16 @@ void gas_LenPrint(double *Ni,int N,double *Pgas,double *Tgas,double *Ngas,double
     fprintf(log,"Te,K\t");
     for(i=0;i<LEN+2;i++)
         fprintf(log,"%.2lf\t",Te[i]*eV_K);
+    fprintf(log,"\n");
+
+    fprintf(log,"Er,V/cm\t");
+    for(i=0;i<LEN+1;i++)
+        fprintf(log,"%.1lf\t",Er[i]*Eabs);
+    fprintf(log,"\n");
+
+    fprintf(log,"Fi,V\t");
+    for(i=0;i<LEN+2;i++)
+        fprintf(log,"%.2lf\t",Fir[i]*Eabs);
     fprintf(log,"\n");
 
     //VDF_print

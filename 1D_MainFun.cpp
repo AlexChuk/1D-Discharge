@@ -20,8 +20,8 @@ int main(void)
 	init_gasDBparser();
 	tic = init_data();
 
-	mesh_calc(Len);
-	Transport_GFcalc(Geom);
+	Mesh_calc(Len);
+	Mesh_GFcalc(Geom);
 
     Nedf = EEDF_read_CS(N);
 	Nchem = chem_make_react(Nedf);
@@ -32,7 +32,7 @@ int main(void)
     double Di[N][LEN+2],Mui[N][LEN+2],Lam[LEN+2];
     double Del[LEN+2],Muel[LEN+2],Jel[LEN+2];
 
-    gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,Ez,Jel,Icalc,&Ne[0][0],tic);
+    gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,Ez,Er,Fir,Jel,Icalc,&Ne[0][0],tic);
     gas_TimePrint(&Ni[0][1],N,Pgas[1],Tgas[1],Ngas[1],Nel[1],Te[1],Tv[1],Ez,0.0,Icalc,tic);
 
     for(i=1;i<=LEN;i++)
@@ -48,8 +48,8 @@ int main(void)
 		dot += 1;
 		dot1 += 1;
 
-        if((EQP==true) || (nt==0) || (dot1==Ndot1))
-            Poisson_SORsolve(Fir,Er,&Ni[0][0],Npos,Nneg);
+        //if((nt==0) || (dot1==Ndot1))//(EQP==true)
+            //Poisson_SORsolve(Fir,Er,&Ni[0][0],Npos,Nneg);
 
         if((nt==0) || (dot==Ndots) || (dTgas[1]>10.0) || (dTe[1]>0.1))///???????
             Trasport_coefs_calc(N,Npos+Nneg,&Ni[0][0],Del,Muel,&Di[0][0],&Mui[0][0],Lam,Pgas,Tgas,Te,EQP);
@@ -86,7 +86,7 @@ int main(void)
         //Writing_data***********************************************
         if(dot==Ndots)
         {
-            gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,Ez,Jel,Icalc,&Ne[0][0],tic);
+            gas_LenPrint(&Ni[0][0],N,Pgas,Tgas,Ngas,Hgas,Rogas,Nel,Te,Tv,Ez,Er,Fir,Jel,Icalc,&Ne[0][0],tic);
             gas_TimePrint(&Ni[0][1],N,Pgas[1],Tgas[1],Ngas[1],Nel[1],Te[1],Tv[1],Ez,Jel[1],Icalc,tic);
             gas_SavePrint(&Ni[0][0],N,Pgas,Tgas,&Ne[0][0],Te,Ez,tic);
             dot = 0;

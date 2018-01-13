@@ -1,64 +1,11 @@
 # include "1D_MainFun.h"
 # include "1DTransport.h"
 # include "Gas_calc.h"
+# include "1Dmesh.h"
 
-double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
+extern double GF_C[LEN+2],GF_L[LEN+2],GF_R[LEN+2];
 double al_bound[Nmax+1][2],bet_bound[Nmax+1][2];
-int Gf = 0;
 
-void Transport_GFcalc(char *Geom)
-{
-    //—етка по длине:
-	/*           left wall                                                               right wall
-    Ni[i]         |                                                                       |
-    Fi[i]     [0] | [1]   [2]	[3]		   		 [i-1]  [i]  [i+1]					  [I] |[I+1]
-            |--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|--x--|---------->Len
-    l[i]   [0]   [1]   [2]   [3]         	  [i-1]  [i]  [i+1] [i+2]              [I]  [I+1] [I+2]
-    E[i]          |                                                                       |
-                  |                                                                       |
-    */
-
-    int i;
-    double lC,lR,lL; //координаты центров €чеек
-    double dlC,dlR,dlL; //разности граней [i]-й €чейки, между центрами €чеек слева ([i-1] и [i]) и справа ([i] и [i+1])
-
-    if(!strcmp(Geom,"axial"))//"radial"
-    {
-        for(i=1;i<LEN+1;i++)
-        {
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
-
-            dlL = lC-lL;
-            dlC = l[i+1]-l[i];
-            dlR = lR-lC;
-
-            GF_L[i] = l[i]/(lC*dlC*dlL);
-            GF_R[i] = l[i+1]/(lC*dlC*dlR);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
-        }
-
-    }
-    else if(!strcmp(Geom,"cartesian"))
-    {
-        for(i=1;i<LEN+1;i++)
-        {
-            lL = 0.5*(l[i-1]+l[i]);
-            lC = 0.5*(l[i]+l[i+1]);
-            lR = 0.5*(l[i+1]+l[i+2]);
-
-            dlL = lC-lL;
-            dlC = l[i+1]-l[i];
-            dlR = lR-lC;
-
-            GF_L[i] = 1.0/(dlC*dlL);
-            GF_R[i] = 1.0/(dlC*dlR);
-            GF_C[i] = -(GF_R[i]+GF_L[i]);
-        }
-    }
-
-}
 void Trasport_coefs_calc(int N,int Nion,double *Ni,double *Del,double *Muel,double *Di,double *Mui,double *Lam,double *Pgas,double *Tgas,double *Te,bool EqP)
 {
     double Damb[LEN+2],SumNi[LEN+2],PTi,PTn,MuPTi;
@@ -74,13 +21,13 @@ void Trasport_coefs_calc(int N,int Nion,double *Ni,double *Del,double *Muel,doub
             if(n==0)
             {
                 Di[n*(LEN+2)+i] = Del[i];
-                Mui[n*(LEN+2)+i] = Muel[i];
+                Mui[n*(LEN+2)+i] = -1.0*Muel[i];
 
                 PTi = Tgas[i]*Tgas[i]/Pgas[i];
                 MuPTi = 0.0;///????????
                 PTn = pow(Tgas[i],1.5)/Pgas[i];
             }
-            else if(n>0 && n<Nion)
+            else if(n>0 && n<=Nion)
             {
                 if(EqP==true)///Poisson_Case:***************************************
                 {
@@ -94,14 +41,15 @@ void Trasport_coefs_calc(int N,int Nion,double *Ni,double *Del,double *Muel,doub
                         Damb[i] = 0.0;
                         SumNi[i] = 0.0;
                     }
-                    Damb[i] += CDi[n]*PTi;//*Ni[n*(LEN+2)+i];
+                    Damb[i] += CDi[n]*PTi*Ni[n*(LEN+2)+i];
                     SumNi[i] += Ni[n*(LEN+2)+i];
 
-                    if(n==Nion-2)///excl_"N2-"
+                    if(n==Nion)//excl_"N2-"
                     {
                         Damb[i] *= (1.0+Te[i]*eV_K/Tgas[i]);
-                        for(int k=0;k<=n;k++)
-                            Di[k*(LEN+2)+i] = Damb[i]/n;//SumNi[i];
+                        for(int k=0;k<=Nion;k++)
+                            //Di[k*(LEN+2)+i] = Damb[i]/(Nion-1);//SumNi[i];
+                            Di[k*(LEN+2)+i] = Damb[i]/SumNi[i];
                     }
 
                     Mui[n*(LEN+2)+i] = 0.0;

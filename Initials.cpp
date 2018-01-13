@@ -11,7 +11,7 @@ double Len,Hght,Tw;
 double tau,dt;
 double Emax,dE,dEev;
 int v0,vlen;
-double V0,Vlen;
+double V0,Vlen,Eps;
 
 int N,NR,Nt,Nte,Ndots,Nneg,Npos;
 char Spec[Nmax][10],Spec_R[Nmax][10],GeomVect[10];
@@ -50,6 +50,7 @@ void init_read()//считывание начальных данных
 	fscanf(init,"%lf%s",&Len,&Cmt);
 	fscanf(init,"%lf%s",&Hght,&Cmt);
 	fscanf(init,"%lf%s",&Tw,&Cmt);
+	fscanf(init,"%lf%s",&Eps,&Cmt);
 
 	fscanf(init,"%s%s",&Geom,&Cmt);
 	fscanf(init,"%s%s%s",&Start,&FileStart,&Cmt);
@@ -74,6 +75,8 @@ void init_read()//считывание начальных данных
     {
         fscanf(init,"%d%s%lf%lf%lf%lf",&N1,&Spec[n],&Xinit[n],&Gamma[n][0],&Gamma[n][1],&CDi[n]);
 
+        //if(!strcmp(Spec[n],"e"))
+           //fscanf(init,"%lf",&CMui[n]);
         if(strchr(Spec[n],'+')!=NULL)
         {
             Npos++;

@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
-void mesh_calc(double);
-void mesh_GFcalc(char *);
+void Mesh_calc(double);
+void Mesh_GFcalc(char *);
 
 #endif // MESH_H
